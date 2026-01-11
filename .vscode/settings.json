@@ -1,0 +1,7 @@
+{
+  "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  }
+}
