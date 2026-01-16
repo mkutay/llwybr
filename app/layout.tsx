@@ -7,7 +7,9 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { AddIn } from "@/components/add-in";
 import { Nav } from "@/components/nav";
+import { Toaster } from "@/components/ui/sonner";
 
 const dmMono = DM_Mono({
   subsets: ["latin"],
@@ -55,7 +57,11 @@ export default function RootLayout({
         >
           <div className="min-h-screen flex flex-col">
             <Nav />
-            {children}
+            <main className="max-w-6xl mx-auto w-full py-4 px-4">
+              <AddIn />
+              {children}
+            </main>
+            <Toaster />
           </div>
         </ThemeProvider>
       </body>

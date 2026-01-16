@@ -10,6 +10,7 @@ import {
 export const ins = pgTable("ins", {
   id: uuid().primaryKey().defaultRandom(),
   text: text().default("").notNull(),
+  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   moved: boolean().default(false).notNull(),
 });
 
@@ -18,6 +19,7 @@ export const projects = pgTable("projects", {
   title: text().default("").notNull(),
   description: text().default("").notNull(),
   notes: text().default("").notNull(),
+  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   parentProjectId: uuid().references((): AnyPgColumn => projects.id),
   completed: boolean().default(false).notNull(),
 });
@@ -28,6 +30,7 @@ export const actions = pgTable("actions", {
   description: text().default("").notNull(),
   notes: text().default("").notNull(),
   deadline: timestamp({ withTimezone: true }),
+  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   projectId: uuid().references(() => projects.id),
   completed: boolean().default(false).notNull(),
 });
