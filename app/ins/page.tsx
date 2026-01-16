@@ -13,7 +13,7 @@ export default async function InsPage() {
   return (
     <MoveDialogProvider>
       <MoveDialog />
-      
+
       <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
           <div

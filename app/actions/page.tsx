@@ -1,8 +1,7 @@
 import { asc, eq } from "drizzle-orm";
-import { Ellipsis } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db/drizzle";
 import { actions } from "@/lib/db/schema";
+import { EditButton, EditDialog, EditDialogProvider } from "./client";
 
 export default async function InsPage() {
   const data = await db
@@ -12,18 +11,19 @@ export default async function InsPage() {
     .orderBy(asc(actions.deadline));
 
   return (
-    <div className="divide-y divide-border flex flex-col py-4">
-      {data.map((item) => (
-        <div
-          key={item.id}
-          className="py-2 flex flex-row justify-between items-center"
-        >
-          {item.title}
-          <Button size="icon-sm" variant="secondary">
-            <Ellipsis />
-          </Button>
-        </div>
-      ))}
-    </div>
+    <EditDialogProvider>
+      <EditDialog />
+      <div className="divide-y divide-border flex flex-col py-4">
+        {data.map((item) => (
+          <div
+            key={item.id}
+            className="py-2 flex flex-row justify-between items-center"
+          >
+            {item.title}
+            <EditButton value={item} />
+          </div>
+        ))}
+      </div>
+    </EditDialogProvider>
   );
 }

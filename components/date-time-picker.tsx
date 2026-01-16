@@ -8,10 +8,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 interface DateTimePickerProps {
   label: string;
-  value?: Date;
-  onChange: (value: Date) => void;
+  value: Date | null;
+  onChange: (value: Date | null) => void;
   error?: { message?: string };
   invalid?: boolean;
+}
+
+function convertTime(t: Date) {
+  const hours = t.getHours().toString().padStart(2, "0");
+  const minutes = t.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
 export function DateTimePicker({
@@ -21,24 +27,25 @@ export function DateTimePicker({
   error,
   invalid,
 }: DateTimePickerProps) {
-  const dateTime = value ? new Date(value) : undefined;
-  const [date, setDate] = useState<Date | undefined>(dateTime);
-  const [time, setTime] = useState(dateTime ? dateTime.toTimeString() : "21:00");
+  const [date, setDate] = useState(value?.toLocaleDateString() ?? "");
+  const [time, setTime] = useState(value ? convertTime(value) : "");
   const [open, setOpen] = useState(false);
 
-  const updateDateTime = (newDate?: Date, newTime?: string) => {
-    const d = newDate || date;
-    const t = newTime !== undefined ? newTime : time;
-    if (d && t) {
-      const [hours, minutes] = t.split(":");
-      if (hours && minutes) {
-        const updatedDate = new Date(d);
-        updatedDate.setHours(
-          Number.parseInt(hours, 10),
-          Number.parseInt(minutes, 10),
-        );
-        onChange(updatedDate);
-      }
+  const updateDateTime = (newDate?: string, newTime?: string) => {
+    const datePart = newDate ?? date;
+    const timePart = newTime ?? time;
+    console.log({ datePart, timePart });
+    if (datePart && timePart) {
+      onChange(new Date(`${datePart} ${timePart}`));
+    } else if (datePart) {
+      onChange(new Date(datePart));
+    } else if (timePart) {
+      const today = new Date();
+      const [hours, minutes] = timePart.split(":").map(Number);
+      today.setHours(hours, minutes, 0, 0);
+      onChange(today);
+    } else {
+      onChange(null);
     }
   };
 
@@ -52,18 +59,19 @@ export function DateTimePicker({
               variant="outline"
               className="justify-between font-normal flex-1"
             >
-              {date ? date.toLocaleDateString() : "Select date"}
+              {date ? new Date(date).toLocaleDateString() : "Select date"}
               <ChevronDown />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
             <Calendar
               mode="single"
-              selected={date}
+              selected={new Date(date)}
               captionLayout="dropdown"
               onSelect={(selectedDate) => {
-                setDate(selectedDate);
-                updateDateTime(selectedDate);
+                const dateString = selectedDate?.toDateString() ?? "";
+                setDate(dateString);
+                updateDateTime(dateString);
                 setOpen(false);
               }}
             />

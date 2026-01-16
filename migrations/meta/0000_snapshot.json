@@ -62,12 +62,8 @@
           "name": "actions_projectId_projects_id_fk",
           "tableFrom": "actions",
           "tableTo": "projects",
-          "columnsFrom": [
-            "projectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["projectId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -164,12 +160,8 @@
           "name": "projects_parentProjectId_projects_id_fk",
           "tableFrom": "projects",
           "tableTo": "projects",
-          "columnsFrom": [
-            "parentProjectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parentProjectId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

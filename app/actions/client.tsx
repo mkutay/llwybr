@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { BringToFront } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,103 +24,110 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { moveInAction } from "@/lib/actions";
-import { moveInSchema } from "@/lib/schemas";
+import { editAction } from "@/lib/actions";
+import type { actions } from "@/lib/db/schema";
+import { editActionSchema } from "@/lib/schemas";
 
-interface MoveDialogContext {
+type Action = typeof actions.$inferSelect;
+
+type EditDialogContextT = {
   open: boolean;
-  id: string;
-  text: string;
-  openDialog: (id: string, text: string) => void;
+  openDialog: (value: Action) => void;
   closeDialog: () => void;
   setOpen: (open: boolean) => void;
-}
+} & {
+  value: Action | null;
+};
 
-const MoveDialogContext = createContext<MoveDialogContext | undefined>(
+const EditDialogContext = createContext<EditDialogContextT | undefined>(
   undefined,
 );
 
-export function MoveDialogProvider({
+export function EditDialogProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [id, setId] = useState("");
-  const [text, setText] = useState("");
+  const [value, setValue] = useState<Action | null>(null);
 
-  const openDialog = (newId: string, newText: string) => {
-    setId(newId);
-    setText(newText);
+  const openDialog = (newValue: Action) => {
+    setValue(newValue);
     setOpen(true);
   };
 
   const closeDialog = () => {
     setOpen(false);
-    setId("");
-    setText("");
+    setValue(null);
   };
 
   return (
-    <MoveDialogContext.Provider
+    <EditDialogContext.Provider
       value={{
         open,
-        id,
-        text,
+        value,
         openDialog,
         closeDialog,
         setOpen,
       }}
     >
       {children}
-    </MoveDialogContext.Provider>
+    </EditDialogContext.Provider>
   );
 }
 
-function useMoveDialog() {
-  const context = useContext(MoveDialogContext);
+function useEditDialog() {
+  const context = useContext(EditDialogContext);
 
   if (context === undefined) {
-    throw new Error("useMoveDialog must be used within a MoveDialogProvider");
+    throw new Error("useEditDialog must be used within a EditDialogProvider");
   }
 
   return context;
 }
 
-export function MoveDialog() {
-  const { open, id, text, closeDialog, setOpen } = useMoveDialog();
+export function EditDialog() {
+  const { open, value: action, closeDialog, setOpen } = useEditDialog();
 
-  const form = useForm<z.infer<typeof moveInSchema>>({
-    resolver: zodResolver(moveInSchema),
+  const form = useForm<z.infer<typeof editActionSchema>>({
+    resolver: zodResolver(editActionSchema),
     defaultValues: {
-      inId: "",
+      id: "",
       title: "",
       description: "",
       notes: "",
       deadline: null,
+      projectId: null,
+      completed: false,
     },
   });
 
-  form.setValue("inId", id);
-  form.setValue("title", text);
-  form.setValue("notes", text);
+  if (action) {
+    form.setValue("id", action.id);
+    form.setValue("title", action.title);
+    form.setValue("description", action.description);
+    form.setValue("notes", action.notes);
+    form.setValue("deadline", action.deadline);
+    form.setValue("projectId", action.projectId);
+    form.setValue("completed", action.completed);
+  }
 
-  const onSubmit = async (data: z.infer<typeof moveInSchema>) => {
+  const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
     closeDialog();
-    await moveInAction(data);
-    toast.success("Moved to actions.");
+    await editAction(data);
+    toast.success("Edited.");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Move to Actions</DialogTitle>
+          <DialogTitle>Edit Action</DialogTitle>
           <DialogDescription>
-            Fill in the details to move this In to your Actions.
+            Make changes to the action details and save.
           </DialogDescription>
         </DialogHeader>
-        <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="edit-action-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="title"
@@ -183,7 +190,10 @@ export function MoveDialog() {
                 <DateTimePicker
                   label="Deadline"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(e) => {
+                    console.log(e);
+                    field.onChange(e);
+                  }}
                   error={fieldState.error}
                   invalid={fieldState.invalid}
                 />
@@ -195,8 +205,8 @@ export function MoveDialog() {
           <Button variant="secondary" onClick={closeDialog}>
             Cancel
           </Button>
-          <Button type="submit" form="move-in-form">
-            Move
+          <Button type="submit" form="edit-action-form">
+            Submit
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -204,16 +214,16 @@ export function MoveDialog() {
   );
 }
 
-export function MoveButton({ id, text }: { id: string; text: string }) {
-  const { openDialog } = useMoveDialog();
+export function EditButton({ value }: { value: Action }) {
+  const { openDialog } = useEditDialog();
 
   return (
     <Button
       size="icon-sm"
       variant="secondary"
-      onClick={() => openDialog(id, text)}
+      onClick={() => openDialog(value)}
     >
-      <BringToFront />
+      <Ellipsis />
     </Button>
   );
 }
