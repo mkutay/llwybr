@@ -3,6 +3,7 @@
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,13 +19,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Nav() {
+  const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
   return (
     <div className="fixed bottom-4 left-4">
-      <DropdownMenu>
+      <DropdownMenu open={open} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setOpen((o) => !o)}
+          >
             <MenuIcon />
           </Button>
         </DropdownMenuTrigger>
