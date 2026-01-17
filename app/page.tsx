@@ -2,6 +2,9 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 
+export const dynamic = "force-static";
+export const revalidate = 300;
+
 export default async function Home() {
   const acs = await db
     .select()

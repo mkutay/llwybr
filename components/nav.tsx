@@ -36,13 +36,19 @@ export function Nav() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <Link href="/ins">Ins</Link>
+            <Link href="/ins" prefetch={false}>
+              Ins
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/projects">Projects</Link>
+            <Link href="/projects" prefetch={false}>
+              Projects
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/actions">Actions</Link>
+            <Link href="/actions" prefetch={false}>
+              Actions
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
