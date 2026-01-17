@@ -9,6 +9,9 @@ import {
 } from "./client";
 import { CreateProjectDialog } from "./create";
 
+export const dynamic = "force-static";
+export const revalidate = 300;
+
 export default async function InsPage() {
   const projectsList = await db
     .select()

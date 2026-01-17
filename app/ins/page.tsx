@@ -3,6 +3,9 @@ import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
 
+export const dynamic = "force-static";
+export const revalidate = 300;
+
 export default async function InsPage() {
   const data = await db
     .select()

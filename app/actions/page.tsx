@@ -8,6 +8,9 @@ import {
   EditDialogProvider,
 } from "./client";
 
+export const dynamic = "force-static";
+export const revalidate = 300;
+
 export default async function InsPage() {
   const data = await db
     .select()
