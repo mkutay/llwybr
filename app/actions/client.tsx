@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { Ellipsis } from "lucide-react";
+import { Circle, CircleCheck, Ellipsis } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -224,6 +224,24 @@ export function EditButton({ value }: { value: Action }) {
       onClick={() => openDialog(value)}
     >
       <Ellipsis />
+    </Button>
+  );
+}
+
+export function CompletedButton({ value }: { value: Action }) {
+  const handleComplete = async () => {
+    await editAction(value);
+  };
+
+  return (
+    <Button
+      size="icon-sm"
+      variant="ghost"
+      onClick={() => handleComplete()}
+      className="group"
+    >
+      <Circle className="group-hover:hidden flex" />
+      <CircleCheck className="hidden group-hover:flex" />
     </Button>
   );
 }
