@@ -21,7 +21,7 @@ export function Nav() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="absolute bottom-4 left-4">
+    <div className="fixed bottom-4 left-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon">
