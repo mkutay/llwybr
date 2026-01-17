@@ -58,7 +58,6 @@ export function EditDialogProvider({
 
   const closeDialog = () => {
     setOpen(false);
-    setValue(null);
   };
 
   return (

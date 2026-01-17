@@ -6,6 +6,7 @@ import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
+import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,6 @@ type Action = typeof actions.$inferSelect;
 type EditDialogContextT = {
   open: boolean;
   openDialog: (value: Action) => void;
-  closeDialog: () => void;
   setOpen: (open: boolean) => void;
 } & {
   value: Action | null;
@@ -56,18 +56,12 @@ export function EditDialogProvider({
     setOpen(true);
   };
 
-  const closeDialog = () => {
-    setOpen(false);
-    setValue(null);
-  };
-
   return (
     <EditDialogContext.Provider
       value={{
         open,
         value,
         openDialog,
-        closeDialog,
         setOpen,
       }}
     >
@@ -86,8 +80,12 @@ function useEditDialog() {
   return context;
 }
 
-export function EditDialog() {
-  const { open, value: action, closeDialog, setOpen } = useEditDialog();
+export function EditDialog({
+  projects,
+}: {
+  projects: Array<{ id: string; title: string }>;
+}) {
+  const { open, value: action, setOpen } = useEditDialog();
 
   const form = useForm<z.infer<typeof editActionSchema>>({
     resolver: zodResolver(editActionSchema),
@@ -113,7 +111,7 @@ export function EditDialog() {
   }
 
   const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
-    closeDialog();
+    setOpen(false);
     await editAction(data);
     toast.success("Edited.");
   };
@@ -199,10 +197,28 @@ export function EditDialog() {
                 />
               )}
             />
+
+            <Controller
+              name="projectId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Project</FieldLabel>
+                  <ChooseProject
+                    projects={projects}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
           </FieldGroup>
         </form>
         <DialogFooter>
-          <Button variant="secondary" onClick={closeDialog}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button type="submit" form="edit-action-form">

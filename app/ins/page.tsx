@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
-import { ins } from "@/lib/db/schema";
+import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
 
 export default async function InsPage() {
@@ -10,9 +10,14 @@ export default async function InsPage() {
     .where(eq(ins.moved, false))
     .orderBy(asc(ins.createdAt));
 
+  const projectsData = await db
+    .select()
+    .from(projects)
+    .orderBy(asc(projects.createdAt));
+
   return (
     <MoveDialogProvider>
-      <MoveDialog />
+      <MoveDialog projects={projectsData} />
 
       <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
@@ -20,7 +25,7 @@ export default async function InsPage() {
             key={item.id}
             className="py-2 flex flex-row justify-between items-center"
           >
-            {item.text}
+            <span className="hyphens-auto">{item.text}</span>
             <MoveButton id={item.id} text={item.text} />
           </div>
         ))}

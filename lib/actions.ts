@@ -25,6 +25,7 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
     description: data.description,
     notes: data.notes,
     deadline: data.deadline,
+    projectId: data.projectId,
   });
 
   revalidatePath("/", "layout");

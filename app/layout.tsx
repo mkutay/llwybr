@@ -57,7 +57,7 @@ export default function RootLayout({
         >
           <div className="min-h-screen flex flex-col">
             <Nav />
-            <main className="max-w-6xl mx-auto w-full py-4 px-4">
+            <main className="max-w-6xl mx-auto w-full py-4 px-4 space-y-4">
               <AddIn />
               {children}
             </main>

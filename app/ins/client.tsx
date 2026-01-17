@@ -6,6 +6,7 @@ import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
+import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,8 +58,6 @@ export function MoveDialogProvider({
 
   const closeDialog = () => {
     setOpen(false);
-    setId("");
-    setText("");
   };
 
   return (
@@ -87,7 +86,11 @@ function useMoveDialog() {
   return context;
 }
 
-export function MoveDialog() {
+export function MoveDialog({
+  projects,
+}: {
+  projects: Array<{ id: string; title: string }>;
+}) {
   const { open, id, text, closeDialog, setOpen } = useMoveDialog();
 
   const form = useForm<z.infer<typeof moveInSchema>>({
@@ -98,6 +101,7 @@ export function MoveDialog() {
       description: "",
       notes: "",
       deadline: null,
+      projectId: null,
     },
   });
 
@@ -109,6 +113,7 @@ export function MoveDialog() {
     closeDialog();
     await moveInAction(data);
     toast.success("Moved to actions.");
+    form.reset();
   };
 
   return (
@@ -187,6 +192,24 @@ export function MoveDialog() {
                   error={fieldState.error}
                   invalid={fieldState.invalid}
                 />
+              )}
+            />
+
+            <Controller
+              name="projectId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Project</FieldLabel>
+                  <ChooseProject
+                    projects={projects}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
           </FieldGroup>

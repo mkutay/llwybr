@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
-import { projects } from "@/lib/db/schema";
+import { actions, projects } from "@/lib/db/schema";
 import {
   CompletedButton,
   EditButton,
@@ -10,16 +10,28 @@ import {
 import { CreateProjectDialog } from "./create";
 
 export default async function InsPage() {
-  const data = await db
+  const projectsList = await db
     .select()
     .from(projects)
     .where(eq(projects.completed, false))
     .orderBy(asc(projects.createdAt));
 
+  const actionsByProject = await db
+    .select()
+    .from(actions)
+    .where(eq(actions.completed, false));
+
+  const data = projectsList.map((project) => ({
+    ...project,
+    actions: actionsByProject.filter(
+      (action) => action.projectId === project.id,
+    ),
+  }));
+
   return (
     <EditDialogProvider>
       <EditDialog projects={data} />
-      <div className="divide-y divide-border flex flex-col py-4">
+      <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
           <div
             key={item.id}
