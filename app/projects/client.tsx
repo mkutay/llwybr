@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BringToFront } from "lucide-react";
+import { Circle, CircleCheck, Ellipsis } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
-import { DateTimePicker } from "@/components/date-time-picker";
+import { ChooseProject } from "@/components/choose-project";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,103 +24,112 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { moveInAction } from "@/lib/actions";
-import { moveInSchema } from "@/lib/schemas";
+import { editProject } from "@/lib/actions";
+import type { projects } from "@/lib/db/schema";
+import { editProjectSchema } from "@/lib/schemas";
 
-interface MoveDialogContext {
+type Project = typeof projects.$inferSelect;
+
+type EditDialogContextT = {
   open: boolean;
-  id: string;
-  text: string;
-  openDialog: (id: string, text: string) => void;
+  openDialog: (value: Project) => void;
   closeDialog: () => void;
   setOpen: (open: boolean) => void;
-}
+} & {
+  value: Project | null;
+};
 
-const MoveDialogContext = createContext<MoveDialogContext | undefined>(
+const EditDialogContext = createContext<EditDialogContextT | undefined>(
   undefined,
 );
 
-export function MoveDialogProvider({
+export function EditDialogProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [id, setId] = useState("");
-  const [text, setText] = useState("");
+  const [value, setValue] = useState<Project | null>(null);
 
-  const openDialog = (newId: string, newText: string) => {
-    setId(newId);
-    setText(newText);
+  const openDialog = (newValue: Project) => {
+    setValue(newValue);
     setOpen(true);
   };
 
   const closeDialog = () => {
     setOpen(false);
-    setId("");
-    setText("");
+    setValue(null);
   };
 
   return (
-    <MoveDialogContext.Provider
+    <EditDialogContext.Provider
       value={{
         open,
-        id,
-        text,
+        value,
         openDialog,
         closeDialog,
         setOpen,
       }}
     >
       {children}
-    </MoveDialogContext.Provider>
+    </EditDialogContext.Provider>
   );
 }
 
-function useMoveDialog() {
-  const context = useContext(MoveDialogContext);
+function useEditDialog() {
+  const context = useContext(EditDialogContext);
 
   if (context === undefined) {
-    throw new Error("useMoveDialog must be used within a MoveDialogProvider");
+    throw new Error("useEditDialog must be used within a EditDialogProvider");
   }
 
   return context;
 }
 
-export function MoveDialog() {
-  const { open, id, text, closeDialog, setOpen } = useMoveDialog();
+export function EditDialog({
+  projects,
+}: {
+  projects: Array<{ id: string; title: string }>;
+}) {
+  const { open, value: action, closeDialog, setOpen } = useEditDialog();
 
-  const form = useForm<z.infer<typeof moveInSchema>>({
-    resolver: zodResolver(moveInSchema),
+  const form = useForm<z.infer<typeof editProjectSchema>>({
+    resolver: zodResolver(editProjectSchema),
     defaultValues: {
-      inId: "",
+      id: "",
       title: "",
       description: "",
       notes: "",
-      deadline: null,
+      parentProjectId: null,
+      completed: false,
     },
   });
 
-  form.setValue("inId", id);
-  form.setValue("title", text);
-  form.setValue("notes", text);
+  if (action) {
+    form.setValue("id", action.id);
+    form.setValue("title", action.title);
+    form.setValue("description", action.description);
+    form.setValue("notes", action.notes);
+    form.setValue("completed", action.completed);
+    form.setValue("parentProjectId", action.parentProjectId);
+  }
 
-  const onSubmit = async (data: z.infer<typeof moveInSchema>) => {
+  const onSubmit = async (data: z.infer<typeof editProjectSchema>) => {
     closeDialog();
-    await moveInAction(data);
-    toast.success("Moved to actions.");
+    await editProject(data);
+    toast.success("Edited.");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Move to Actions</DialogTitle>
+          <DialogTitle>Edit Project</DialogTitle>
           <DialogDescription>
-            Fill in the details to move this In to your Actions.
+            Make changes to the project details and save.
           </DialogDescription>
         </DialogHeader>
-        <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="edit-project-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="title"
@@ -177,16 +186,20 @@ export function MoveDialog() {
             />
 
             <Controller
-              name="deadline"
+              name="parentProjectId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <DateTimePicker
-                  label="Deadline"
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={fieldState.error}
-                  invalid={fieldState.invalid}
-                />
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Parent</FieldLabel>
+                  <ChooseProject
+                    projects={projects.filter((p) => p.id !== action?.id)}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
           </FieldGroup>
@@ -195,8 +208,8 @@ export function MoveDialog() {
           <Button variant="secondary" onClick={closeDialog}>
             Cancel
           </Button>
-          <Button type="submit" form="move-in-form">
-            Move
+          <Button type="submit" form="edit-project-form">
+            Submit
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -204,16 +217,34 @@ export function MoveDialog() {
   );
 }
 
-export function MoveButton({ id, text }: { id: string; text: string }) {
-  const { openDialog } = useMoveDialog();
+export function EditButton({ value }: { value: Project }) {
+  const { openDialog } = useEditDialog();
 
   return (
     <Button
       size="icon-sm"
       variant="secondary"
-      onClick={() => openDialog(id, text)}
+      onClick={() => openDialog(value)}
     >
-      <BringToFront />
+      <Ellipsis />
+    </Button>
+  );
+}
+
+export function CompletedButton({ value }: { value: Project }) {
+  const handleComplete = async () => {
+    await editProject({ ...value, completed: true });
+  };
+
+  return (
+    <Button
+      size="icon-sm"
+      variant="ghost"
+      onClick={() => handleComplete()}
+      className="group"
+    >
+      <Circle className="group-hover:hidden flex" />
+      <CircleCheck className="hidden group-hover:flex" />
     </Button>
   );
 }

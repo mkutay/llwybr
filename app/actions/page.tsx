@@ -25,7 +25,7 @@ export default async function InsPage() {
             className="py-2 flex flex-row justify-between items-center"
           >
             <div className="flex flex-row gap-3 items-center">
-              <CompletedButton value={{ ...item, completed: true }} />
+              <CompletedButton value={item} />
               <div className="flex flex-col gap-1">
                 <div>{item.title}</div>
                 {item.description && <div>{item.description}</div>}

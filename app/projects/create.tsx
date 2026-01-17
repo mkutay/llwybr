@@ -1,12 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BringToFront } from "lucide-react";
-import { createContext, useContext, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
-import { DateTimePicker } from "@/components/date-time-picker";
+import { ChooseProject } from "@/components/choose-project";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -24,100 +24,43 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { moveInAction } from "@/lib/actions";
-import { moveInSchema } from "@/lib/schemas";
+import { createProject } from "@/lib/actions";
+import { createProjectSchema } from "@/lib/schemas";
 
-interface MoveDialogContext {
-  open: boolean;
-  id: string;
-  text: string;
-  openDialog: (id: string, text: string) => void;
-  closeDialog: () => void;
-  setOpen: (open: boolean) => void;
-}
-
-const MoveDialogContext = createContext<MoveDialogContext | undefined>(
-  undefined,
-);
-
-export function MoveDialogProvider({
-  children,
+export function CreateProjectDialog({
+  projects,
 }: {
-  children: React.ReactNode;
+  projects: Array<{ id: string; title: string }>;
 }) {
   const [open, setOpen] = useState(false);
-  const [id, setId] = useState("");
-  const [text, setText] = useState("");
 
-  const openDialog = (newId: string, newText: string) => {
-    setId(newId);
-    setText(newText);
-    setOpen(true);
-  };
-
-  const closeDialog = () => {
-    setOpen(false);
-    setId("");
-    setText("");
-  };
-
-  return (
-    <MoveDialogContext.Provider
-      value={{
-        open,
-        id,
-        text,
-        openDialog,
-        closeDialog,
-        setOpen,
-      }}
-    >
-      {children}
-    </MoveDialogContext.Provider>
-  );
-}
-
-function useMoveDialog() {
-  const context = useContext(MoveDialogContext);
-
-  if (context === undefined) {
-    throw new Error("useMoveDialog must be used within a MoveDialogProvider");
-  }
-
-  return context;
-}
-
-export function MoveDialog() {
-  const { open, id, text, closeDialog, setOpen } = useMoveDialog();
-
-  const form = useForm<z.infer<typeof moveInSchema>>({
-    resolver: zodResolver(moveInSchema),
+  const form = useForm<z.infer<typeof createProjectSchema>>({
+    resolver: zodResolver(createProjectSchema),
     defaultValues: {
-      inId: "",
       title: "",
       description: "",
       notes: "",
-      deadline: null,
+      parentProjectId: null,
     },
   });
 
-  form.setValue("inId", id);
-  form.setValue("title", text);
-  form.setValue("notes", text);
-
-  const onSubmit = async (data: z.infer<typeof moveInSchema>) => {
-    closeDialog();
-    await moveInAction(data);
-    toast.success("Moved to actions.");
+  const onSubmit = async (data: z.infer<typeof createProjectSchema>) => {
+    setOpen(false);
+    await createProject(data);
+    toast.success("Project created successfully");
+    form.reset();
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="ml-auto w-fit mt-2">Create Project</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Move to Actions</DialogTitle>
+          <DialogTitle>Create Project</DialogTitle>
           <DialogDescription>
-            Fill in the details to move this In to your Actions.
+            Fill in the details to create a new project.
           </DialogDescription>
         </DialogHeader>
         <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -177,43 +120,33 @@ export function MoveDialog() {
             />
 
             <Controller
-              name="deadline"
+              name="parentProjectId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <DateTimePicker
-                  label="Deadline"
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={fieldState.error}
-                  invalid={fieldState.invalid}
-                />
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Parent</FieldLabel>
+                  <ChooseProject
+                    projects={projects}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
           </FieldGroup>
         </form>
         <DialogFooter>
-          <Button variant="secondary" onClick={closeDialog}>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button type="submit" form="move-in-form">
-            Move
+            Create
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-export function MoveButton({ id, text }: { id: string; text: string }) {
-  const { openDialog } = useMoveDialog();
-
-  return (
-    <Button
-      size="icon-sm"
-      variant="secondary"
-      onClick={() => openDialog(id, text)}
-    >
-      <BringToFront />
-    </Button>
   );
 }

@@ -4,8 +4,13 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type z from "zod";
 import { db } from "./db/drizzle";
-import { actions, ins } from "./db/schema";
-import type { editActionSchema, moveInSchema } from "./schemas";
+import { actions, ins, projects } from "./db/schema";
+import type {
+  createProjectSchema,
+  editActionSchema,
+  editProjectSchema,
+  moveInSchema,
+} from "./schemas";
 
 export async function addIn(text: string) {
   await db.insert(ins).values({ text });
@@ -38,6 +43,32 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
       completed: data.completed,
     })
     .where(eq(actions.id, data.id));
+
+  revalidatePath("/", "layout");
+}
+
+export async function createProject(data: z.infer<typeof createProjectSchema>) {
+  await db.insert(projects).values({
+    title: data.title,
+    description: data.description,
+    notes: data.notes,
+    parentProjectId: data.parentProjectId,
+  });
+
+  revalidatePath("/", "layout");
+}
+
+export async function editProject(data: z.infer<typeof editProjectSchema>) {
+  await db
+    .update(projects)
+    .set({
+      title: data.title,
+      description: data.description,
+      notes: data.notes,
+      parentProjectId: data.parentProjectId,
+      completed: data.completed,
+    })
+    .where(eq(projects.id, data.id));
 
   revalidatePath("/", "layout");
 }

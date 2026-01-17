@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { Circle, CircleCheck, Ellipsis } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -12,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -230,7 +230,7 @@ export function EditButton({ value }: { value: Action }) {
 
 export function CompletedButton({ value }: { value: Action }) {
   const handleComplete = async () => {
-    await editAction(value);
+    await editAction({ ...value, completed: true });
   };
 
   return (
