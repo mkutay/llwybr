@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
@@ -7,9 +8,6 @@ import {
   EditDialog,
   EditDialogProvider,
 } from "./client";
-
-export const dynamic = "force-static";
-export const revalidate = 300;
 
 export default async function InsPage() {
   const data = await db
@@ -30,7 +28,7 @@ export default async function InsPage() {
         {data.map((item) => (
           <div
             key={item.id}
-            className="py-2 flex flex-row justify-between items-center"
+            className="py-2 flex flex-row flex-wrap justify-between md:items-center"
           >
             <div className="flex flex-col gap-1">
               <div className="flex flex-row gap-2 items-center">
@@ -38,14 +36,18 @@ export default async function InsPage() {
                 {item.title}
               </div>
               {(item.description || item.notes) && (
-                <div className="ml-10 flex flex-col gap-1 hyphens-auto text-muted-foreground">
+                <div className="ml-10 flex flex-col gap-1 break-all text-muted-foreground">
                   {item.description && <div>{item.description}</div>}
                   {item.notes && <div>{item.notes}</div>}
                 </div>
               )}
             </div>
-            <div className="flex flex-row gap-4 items-center">
-              {item.deadline && <div>{item.deadline.toLocaleString()}</div>}
+            <div className="flex flex-row gap-4 items-center ml-auto">
+              {item.deadline && (
+                <div className="font-mono text-sm whitespace-nowrap">
+                  {format(item.deadline, "PPp")}
+                </div>
+              )}
               <EditButton value={item} />
             </div>
           </div>

@@ -17,7 +17,7 @@ export default async function Home() {
     .where(eq(projects.completed, false));
 
   return (
-    <div className="flex flex-col gap-2 justify-center items-center min-h-screen">
+    <div className="flex flex-col gap-2 justify-center items-center min-h-screen font-mono">
       <p className="text-lg leading-relaxed">
         waiting to be done: {acs.length}
       </p>

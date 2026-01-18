@@ -57,7 +57,7 @@ export function DateTimePicker({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="justify-between font-normal flex-1"
+              className="justify-between font-normal flex-1 font-mono"
             >
               {date ? new Date(date).toLocaleDateString() : "Select date"}
               <ChevronDown />

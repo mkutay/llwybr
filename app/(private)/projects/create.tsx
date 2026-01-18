@@ -54,7 +54,7 @@ export function CreateProjectDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="ml-auto w-fit mt-2">Create Project</Button>
+        <Button className="ml-auto w-fit mt-4">Create Project</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

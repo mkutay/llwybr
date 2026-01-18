@@ -227,7 +227,15 @@ export function MoveDialog({
   );
 }
 
-export function MoveButton({ id, text }: { id: string; text: string }) {
+export function MoveButton({
+  id,
+  text,
+  className,
+}: {
+  id: string;
+  text: string;
+  className?: string;
+}) {
   const { openDialog } = useMoveDialog();
 
   return (
@@ -235,6 +243,7 @@ export function MoveButton({ id, text }: { id: string; text: string }) {
       size="icon-sm"
       variant="secondary"
       onClick={() => openDialog(id, text)}
+      className={className}
     >
       <BringToFront />
     </Button>

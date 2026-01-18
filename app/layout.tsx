@@ -5,10 +5,10 @@ import {
   DM_Serif_Display,
   DM_Serif_Text,
 } from "next/font/google";
-import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Nav } from "@/components/nav";
 import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
 
 const dmMono = DM_Mono({
   subsets: ["latin"],

@@ -216,7 +216,13 @@ export function EditDialog({
   );
 }
 
-export function EditButton({ value }: { value: Project }) {
+export function EditButton({
+  value,
+  className,
+}: {
+  value: Project;
+  className?: string;
+}) {
   const { openDialog } = useEditDialog();
 
   return (
@@ -224,6 +230,7 @@ export function EditButton({ value }: { value: Project }) {
       size="icon-sm"
       variant="secondary"
       onClick={() => openDialog(value)}
+      className={className}
     >
       <Ellipsis />
     </Button>

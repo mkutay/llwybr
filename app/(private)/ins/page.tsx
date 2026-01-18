@@ -3,9 +3,6 @@ import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
 
-export const dynamic = "force-static";
-export const revalidate = 300;
-
 export default async function InsPage() {
   const data = await db
     .select()
@@ -26,10 +23,10 @@ export default async function InsPage() {
         {data.map((item) => (
           <div
             key={item.id}
-            className="py-2 flex flex-row justify-between items-center"
+            className="py-2 flex flex-row flex-wrap gap-2 justify-between md:items-center"
           >
             <span className="hyphens-auto">{item.text}</span>
-            <MoveButton id={item.id} text={item.text} />
+            <MoveButton id={item.id} text={item.text} className="ml-auto" />
           </div>
         ))}
       </div>

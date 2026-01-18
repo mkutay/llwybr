@@ -9,9 +9,6 @@ import {
 } from "./client";
 import { CreateProjectDialog } from "./create";
 
-export const dynamic = "force-static";
-export const revalidate = 300;
-
 export default async function InsPage() {
   const projectsList = await db
     .select()
@@ -38,17 +35,21 @@ export default async function InsPage() {
         {data.map((item) => (
           <div
             key={item.id}
-            className="py-2 flex flex-row justify-between items-center"
+            className="py-2 flex flex-row gap-2 flex-wrap justify-between md:items-center"
           >
-            <div className="flex flex-row gap-3 items-center">
-              <CompletedButton value={item} />
-              <div className="flex flex-col gap-1">
-                <div>{item.title}</div>
-                {item.description && <div>{item.description}</div>}
-                {item.notes && <div>{item.notes}</div>}
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-row gap-2 items-center">
+                <CompletedButton value={item} />
+                {item.title}
               </div>
+              {(item.description || item.notes) && (
+                <div className="ml-10 flex flex-col gap-1 break-all text-muted-foreground">
+                  {item.description && <div>{item.description}</div>}
+                  {item.notes && <div>{item.notes}</div>}
+                </div>
+              )}
             </div>
-            <EditButton value={item} />
+            <EditButton value={item} className="ml-auto" />
           </div>
         ))}
         <CreateProjectDialog projects={data} />
