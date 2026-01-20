@@ -24,7 +24,7 @@ export function Nav() {
 
   return (
     <div className="fixed bottom-4 left-4">
-      <DropdownMenu open={open} modal={false}>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
