@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { moveInAction } from "@/lib/actions";
+import { deleteIn, moveInAction } from "@/lib/actions";
 import { moveInSchema } from "@/lib/schemas";
 
 interface MoveDialogContext {
@@ -113,6 +113,13 @@ export function MoveDialog({
     closeDialog();
     await moveInAction(data);
     toast.success("Moved to actions.");
+    form.reset();
+  };
+
+  const handleDelete = async () => {
+    closeDialog();
+    await deleteIn(id);
+    toast.success("Deleted.");
     form.reset();
   };
 
@@ -214,13 +221,18 @@ export function MoveDialog({
             />
           </FieldGroup>
         </form>
-        <DialogFooter>
-          <Button variant="secondary" onClick={closeDialog}>
-            Cancel
+        <DialogFooter className="sm:justify-between">
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete
           </Button>
-          <Button type="submit" form="move-in-form">
-            Move
-          </Button>
+          <div className="flex md:flex-row flex-col gap-2">
+            <Button variant="secondary" onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button type="submit" form="move-in-form">
+              Move
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

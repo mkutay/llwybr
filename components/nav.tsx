@@ -41,13 +41,13 @@ export function Nav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/projects" prefetch={false}>
-              Projects
+            <Link href="/actions" prefetch={false}>
+              Actions
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/actions" prefetch={false}>
-              Actions
+            <Link href="/projects" prefetch={false}>
+              Projects
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>

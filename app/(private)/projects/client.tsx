@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { editProject } from "@/lib/actions";
+import { deleteProject, editProject } from "@/lib/actions";
 import type { projects } from "@/lib/db/schema";
 import { editProjectSchema } from "@/lib/schemas";
 
@@ -119,6 +119,14 @@ export function EditDialog({
     toast.success("Edited.");
   };
 
+  const handleDelete = async () => {
+    if (!action) return;
+    closeDialog();
+    await deleteProject(action.id);
+    toast.success("Deleted.");
+    form.reset();
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -203,13 +211,18 @@ export function EditDialog({
             />
           </FieldGroup>
         </form>
-        <DialogFooter>
-          <Button variant="secondary" onClick={closeDialog}>
-            Cancel
+        <DialogFooter className="sm:justify-between">
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete
           </Button>
-          <Button type="submit" form="edit-project-form">
-            Submit
-          </Button>
+          <div className="flex md:flex-row flex-col gap-2">
+            <Button variant="secondary" onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button type="submit" form="edit-project-form">
+              Submit
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

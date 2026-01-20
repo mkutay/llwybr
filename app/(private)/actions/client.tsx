@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { editAction } from "@/lib/actions";
+import { deleteAction, editAction } from "@/lib/actions";
 import type { actions } from "@/lib/db/schema";
 import { editActionSchema } from "@/lib/schemas";
 
@@ -114,6 +114,14 @@ export function EditDialog({
     setOpen(false);
     await editAction(data);
     toast.success("Edited.");
+  };
+
+  const handleDelete = async () => {
+    if (!action) return;
+    setOpen(false);
+    await deleteAction(action.id);
+    toast.success("Deleted.");
+    form.reset();
   };
 
   return (
@@ -217,13 +225,18 @@ export function EditDialog({
             />
           </FieldGroup>
         </form>
-        <DialogFooter>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
+        <DialogFooter className="sm:justify-between">
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete
           </Button>
-          <Button type="submit" form="edit-action-form">
-            Submit
-          </Button>
+          <div className="flex md:flex-row flex-col gap-2">
+            <Button variant="secondary" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" form="edit-action-form">
+              Submit
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

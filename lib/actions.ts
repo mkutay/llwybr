@@ -12,9 +12,13 @@ import type {
   moveInSchema,
 } from "./schemas";
 
+export async function deleteIn(id: string) {
+  await db.delete(ins).where(eq(ins.id, id));
+  revalidatePath("/", "layout");
+}
+
 export async function addIn(text: string) {
   await db.insert(ins).values({ text });
-
   revalidatePath("/", "layout");
 }
 
@@ -28,6 +32,11 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
     projectId: data.projectId,
   });
 
+  revalidatePath("/", "layout");
+}
+
+export async function deleteAction(id: string) {
+  await db.delete(actions).where(eq(actions.id, id));
   revalidatePath("/", "layout");
 }
 
@@ -56,6 +65,11 @@ export async function createProject(data: z.infer<typeof createProjectSchema>) {
     parentProjectId: data.parentProjectId,
   });
 
+  revalidatePath("/", "layout");
+}
+
+export async function deleteProject(id: string) {
+  await db.delete(projects).where(eq(projects.id, id));
   revalidatePath("/", "layout");
 }
 
