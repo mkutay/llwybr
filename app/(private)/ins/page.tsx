@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
@@ -7,7 +7,7 @@ export default async function Page() {
   const data = await db
     .select()
     .from(ins)
-    .where(eq(ins.moved, false))
+    .where(isNull(ins.moved))
     .orderBy(asc(ins.createdAt));
 
   const projectsData = await db

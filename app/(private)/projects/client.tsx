@@ -100,7 +100,7 @@ export function EditDialog({
       description: "",
       notes: "",
       parentProjectId: null,
-      completed: false,
+      completed: null,
     },
   });
 
@@ -252,7 +252,7 @@ export function EditButton({
 
 export function CompletedButton({ value }: { value: Project }) {
   const handleComplete = async () => {
-    await editProject({ ...value, completed: true });
+    await editProject({ ...value, completed: new Date() });
   };
 
   return (

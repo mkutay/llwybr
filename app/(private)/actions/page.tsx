@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { asc, eq } from "drizzle-orm";
+import { asc, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ export default async function Page() {
   const data = await db
     .select()
     .from(actions)
-    .where(eq(actions.completed, false))
+    .where(isNull(actions.completed))
     .orderBy(asc(actions.deadline), asc(actions.createdAt));
 
   const projectsData = await db

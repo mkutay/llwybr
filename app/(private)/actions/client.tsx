@@ -96,7 +96,7 @@ export function EditDialog({
       notes: "",
       deadline: null,
       projectId: null,
-      completed: false,
+      completed: null,
     },
   });
 
@@ -259,7 +259,7 @@ export function EditButton({ value }: { value: Action }) {
 
 export function CompletedButton({ value }: { value: Action }) {
   const handleComplete = async () => {
-    await editAction({ ...value, completed: true });
+    await editAction({ ...value, completed: new Date() });
   };
 
   return (

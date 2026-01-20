@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { isNotNull, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 
@@ -6,20 +6,17 @@ export const dynamic = "force-static";
 export const revalidate = 300;
 
 export default async function Home() {
-  const acs = await db
-    .select()
-    .from(actions)
-    .where(eq(actions.completed, false));
+  const acs = await db.select().from(actions).where(isNull(actions.completed));
 
   const completed = await db
     .select()
     .from(actions)
-    .where(eq(actions.completed, true));
+    .where(isNotNull(actions.completed));
 
   const prjs = await db
     .select()
     .from(projects)
-    .where(eq(projects.completed, false));
+    .where(isNull(projects.completed));
 
   return (
     <div className="flex flex-col gap-2 justify-center items-center min-h-screen font-mono">

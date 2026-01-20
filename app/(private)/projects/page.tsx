@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
@@ -13,13 +13,13 @@ export default async function Page() {
   const projectsList = await db
     .select()
     .from(projects)
-    .where(eq(projects.completed, false))
+    .where(isNull(projects.completed))
     .orderBy(asc(projects.createdAt));
 
   const actionsByProject = await db
     .select()
     .from(actions)
-    .where(eq(actions.completed, false));
+    .where(isNull(actions.completed));
 
   const data = projectsList.map((project) => ({
     ...project,

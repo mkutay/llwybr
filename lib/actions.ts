@@ -23,14 +23,18 @@ export async function addIn(text: string) {
 }
 
 export async function moveInAction(data: z.infer<typeof moveInSchema>) {
-  await db.update(ins).set({ moved: true }).where(eq(ins.id, data.inId));
-  await db.insert(actions).values({
-    title: data.title,
-    description: data.description,
-    notes: data.notes,
-    deadline: data.deadline,
-    projectId: data.projectId,
-  });
+  const [{ id }] = await db
+    .insert(actions)
+    .values({
+      title: data.title,
+      description: data.description,
+      notes: data.notes,
+      deadline: data.deadline,
+      projectId: data.projectId,
+    })
+    .returning({ id: actions.id });
+
+  await db.update(ins).set({ moved: id }).where(eq(ins.id, data.inId));
 
   revalidatePath("/", "layout");
 }
@@ -41,7 +45,6 @@ export async function deleteAction(id: string) {
 }
 
 export async function editAction(data: z.infer<typeof editActionSchema>) {
-  console.log(data);
   await db
     .update(actions)
     .set({
