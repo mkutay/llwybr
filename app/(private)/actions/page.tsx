@@ -29,7 +29,7 @@ export default async function InsPage() {
         {data.map((item) => (
           <div
             key={item.id}
-            className="py-2 flex flex-row flex-wrap justify-between md:items-center"
+            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
           >
             <div className="flex flex-col gap-1">
               <div className="flex flex-row gap-2 items-center">
@@ -37,9 +37,13 @@ export default async function InsPage() {
                 {item.title}
               </div>
               {(item.description || item.notes) && (
-                <div className="ml-10 flex flex-col gap-1 break-all text-muted-foreground">
+                <div className="ml-10 flex flex-col gap-1 break-all text-pretty text-justify text-muted-foreground">
                   {item.description && <div>{item.description}</div>}
-                  {item.notes && <div>{item.notes}</div>}
+                  {item.notes && (
+                    <pre className="font-mono text-sm whitespace-pre-wrap">
+                      {item.notes}
+                    </pre>
+                  )}
                 </div>
               )}
             </div>
