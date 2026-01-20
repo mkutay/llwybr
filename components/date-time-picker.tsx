@@ -68,6 +68,7 @@ export function DateTimePicker({
               mode="single"
               selected={new Date(date)}
               captionLayout="dropdown"
+              weekStartsOn={1}
               onSelect={(selectedDate) => {
                 const dateString = selectedDate?.toDateString() ?? "";
                 setDate(dateString);
