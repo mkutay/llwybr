@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
+import { cn } from "@/lib/utils";
 import {
   CompletedButton,
   EditButton,
@@ -44,7 +45,14 @@ export default async function InsPage() {
             </div>
             <div className="flex flex-row gap-4 items-center ml-auto">
               {item.deadline && (
-                <div className="font-mono text-sm whitespace-nowrap">
+                <div
+                  className={cn(
+                    "font-mono text-sm whitespace-nowrap",
+                    new Date() > item.deadline
+                      ? "text-destructive"
+                      : "text-foreground",
+                  )}
+                >
                   {format(item.deadline, "PPp")}
                 </div>
               )}

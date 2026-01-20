@@ -11,6 +11,11 @@ export default async function Home() {
     .from(actions)
     .where(eq(actions.completed, false));
 
+  const completed = await db
+    .select()
+    .from(actions)
+    .where(eq(actions.completed, true));
+
   const prjs = await db
     .select()
     .from(projects)
@@ -22,6 +27,9 @@ export default async function Home() {
         waiting to be done: {acs.length}
       </p>
       <p className="text-lg leading-relaxed">active projects: {prjs.length}</p>
+      <p className="text-lg leading-relaxed">
+        completed actions: {completed.length}
+      </p>
     </div>
   );
 }
