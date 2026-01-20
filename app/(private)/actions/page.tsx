@@ -31,7 +31,7 @@ export default async function Page() {
             key={item.id}
             className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
           >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col">
               <div className="flex flex-row gap-2 items-center">
                 <CompletedButton value={item} />
                 {item.title}
