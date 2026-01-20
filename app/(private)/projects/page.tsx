@@ -9,7 +9,7 @@ import {
 } from "./client";
 import { CreateProjectDialog } from "./create";
 
-export default async function InsPage() {
+export default async function Page() {
   const projectsList = await db
     .select()
     .from(projects)

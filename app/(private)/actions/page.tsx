@@ -10,7 +10,7 @@ import {
   EditDialogProvider,
 } from "./client";
 
-export default async function InsPage() {
+export default async function Page() {
   const data = await db
     .select()
     .from(actions)

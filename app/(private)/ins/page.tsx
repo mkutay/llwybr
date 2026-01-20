@@ -3,7 +3,7 @@ import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
 
-export default async function InsPage() {
+export default async function Page() {
   const data = await db
     .select()
     .from(ins)
