@@ -34,7 +34,6 @@ export function DateTimePicker({
   const updateDateTime = (newDate?: string, newTime?: string) => {
     const datePart = newDate ?? date;
     const timePart = newTime ?? time;
-    console.log({ datePart, timePart });
     if (datePart && timePart) {
       onChange(new Date(`${datePart} ${timePart}`));
     } else if (datePart) {
@@ -52,41 +51,125 @@ export function DateTimePicker({
   return (
     <Field data-invalid={invalid} className="flex-1">
       <FieldLabel>{label}</FieldLabel>
-      <div className="flex gap-2">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="justify-between font-normal flex-1 font-mono"
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-between font-normal flex-1 font-mono"
+              >
+                {date ? new Date(date).toLocaleDateString() : "Select date"}
+                <ChevronDown />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto overflow-hidden p-0"
+              align="start"
             >
-              {date ? new Date(date).toLocaleDateString() : "Select date"}
-              <ChevronDown />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={new Date(date)}
-              captionLayout="dropdown"
-              weekStartsOn={1}
-              onSelect={(selectedDate) => {
-                const dateString = selectedDate?.toDateString() ?? "";
-                setDate(dateString);
-                updateDateTime(dateString);
-                setOpen(false);
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-        <Input
-          type="time"
-          value={time}
-          onChange={(e) => {
-            setTime(e.target.value);
-            updateDateTime(undefined, e.target.value);
-          }}
-          className="w-fit font-mono bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
-        />
+              <Calendar
+                mode="single"
+                selected={new Date(date)}
+                captionLayout="dropdown"
+                weekStartsOn={1}
+                onSelect={(selectedDate) => {
+                  const dateString = selectedDate?.toDateString() ?? "";
+                  setDate(dateString);
+                  updateDateTime(dateString);
+                  setOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="time"
+            value={time}
+            onChange={(e) => {
+              setTime(e.target.value);
+              updateDateTime(undefined, e.target.value);
+            }}
+            className="w-fit font-mono bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+          />
+        </div>
+        <div className="flex flex-row flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              const now = new Date();
+              const dateString = now.toDateString();
+              now.setHours(23);
+              now.setMinutes(59);
+              const timeString = convertTime(now);
+              setDate(dateString);
+              setTime(timeString);
+              updateDateTime(dateString, timeString);
+            }}
+          >
+            Tonight
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              const dateString = tomorrow.toDateString();
+              tomorrow.setHours(23);
+              tomorrow.setMinutes(59);
+              const timeString = convertTime(tomorrow);
+              setDate(dateString);
+              setTime(timeString);
+              updateDateTime(dateString, timeString);
+            }}
+          >
+            Tomorrow
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              const nextWeek = new Date();
+              nextWeek.setDate(nextWeek.getDate() + 7);
+              const dateString = nextWeek.toDateString();
+              nextWeek.setHours(23);
+              nextWeek.setMinutes(59);
+              const timeString = convertTime(nextWeek);
+              setDate(dateString);
+              setTime(timeString);
+              updateDateTime(dateString, timeString);
+            }}
+          >
+            Next Week
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              // makes it sunday night
+              const thisWeekend = new Date();
+              const daysUntilSunday = 7 - thisWeekend.getDay();
+              thisWeekend.setDate(thisWeekend.getDate() + daysUntilSunday);
+              const dateString = thisWeekend.toDateString();
+              thisWeekend.setHours(23);
+              thisWeekend.setMinutes(59);
+              const timeString = convertTime(thisWeekend);
+              setDate(dateString);
+              setTime(timeString);
+              updateDateTime(dateString, timeString);
+            }}
+          >
+            This Weekend
+          </Button>
+        </div>
       </div>
       {invalid && error && <FieldError errors={[error]} />}
     </Field>
