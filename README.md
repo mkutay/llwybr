@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# llwybr
+
+> "Path" in Welsh.
+
+`llwybr` is a personal task and project management application built with Next.js. It helps you track your actions and projects, providing a clear view of what needs to be done and what you've accomplished.
+
+## Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org) (App Router)
+- **Database**: PostgreSQL with [Drizzle ORM](https://orm.drizzle.team)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com) v4
+- **UI Components**: Radix UI/Shadcn
+- **Tooling**: [Biome](https://biomejs.dev)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh)
+- Docker (for local database)
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone https://github.com/mkutay/llwybr
+cd llwybr
+```
+
+2. Install dependencies:
+
+```bash
+bun install
+```
+
+3. Set up the environment:
+
+```bash
+cp .env.example .env
+```
+
+### Database Setup
+
+1. Start the local PostgreSQL instance:
+
+```bash
+./start-database.sh
+```
+
+2. Push the schema to the database:
+
+```bash
+bun db:push
+```
+
+### Development
+
+Run the development server:
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `bun dev`: Start the development server
+- `bun build`: Build the application for production
+- `bun start`: Start the production server
+- `bun check`: Run Biome checks (formatting and linting)
+- `bun db:generate`: Generate Drizzle migrations
+- `bun db:migrate`: Run migrations
+- `bun db:push`: Push schema changes directly to the database
+- `bun db:studio`: Open Drizzle Studio to manage data
