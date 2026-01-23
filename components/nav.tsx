@@ -26,11 +26,7 @@ export function Nav() {
     <div className="fixed bottom-4 left-4">
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setOpen((o) => !o)}
-          >
+          <Button size="icon" onClick={() => setOpen((o) => !o)}>
             <MenuIcon />
           </Button>
         </DropdownMenuTrigger>
