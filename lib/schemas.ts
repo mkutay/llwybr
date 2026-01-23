@@ -17,14 +17,8 @@ export const editActionSchema = z.object({
   completed: z.date().nullable(),
 });
 
-export const createProjectSchema = z.object({
-  title: z.string().min(1),
-  notes: z.string(),
-  parentProjectId: z.uuid().nullable(),
-});
-
-export const editProjectSchema = z.object({
-  id: z.uuid(),
+export const upsertProjectSchema = z.object({
+  id: z.uuid().optional(),
   title: z.string().min(1),
   notes: z.string(),
   parentProjectId: z.uuid().nullable(),

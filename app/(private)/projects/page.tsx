@@ -5,11 +5,11 @@ import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
   CompletedButton,
+  CreateButton,
   EditButton,
   EditDialog,
   EditDialogProvider,
 } from "./client";
-import { CreateProjectDialog } from "./create";
 
 export default async function Page() {
   const projectsList = await db
@@ -49,7 +49,7 @@ export default async function Page() {
             trailing={<EditButton value={item} />}
           />
         ))}
-        <CreateProjectDialog projects={data} />
+        <CreateButton />
       </EntityList>
     </EditDialogProvider>
   );

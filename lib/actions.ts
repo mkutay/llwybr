@@ -6,10 +6,9 @@ import type z from "zod";
 import { db } from "./db/drizzle";
 import { actions, ins, projects } from "./db/schema";
 import type {
-  createProjectSchema,
   editActionSchema,
-  editProjectSchema,
   moveInSchema,
+  upsertProjectSchema,
 } from "./schemas";
 
 export async function deleteIn(id: string) {
@@ -58,31 +57,29 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
   revalidatePath("/", "layout");
 }
 
-export async function createProject(data: z.infer<typeof createProjectSchema>) {
-  await db.insert(projects).values({
-    title: data.title,
-    notes: data.notes,
-    parentProjectId: data.parentProjectId,
-  });
-
-  revalidatePath("/", "layout");
-}
-
 export async function deleteProject(id: string) {
   await db.delete(projects).where(eq(projects.id, id));
   revalidatePath("/", "layout");
 }
 
-export async function editProject(data: z.infer<typeof editProjectSchema>) {
-  await db
-    .update(projects)
-    .set({
+export async function upsertProject(data: z.infer<typeof upsertProjectSchema>) {
+  if (!data.id) {
+    await db.insert(projects).values({
       title: data.title,
       notes: data.notes,
       parentProjectId: data.parentProjectId,
-      completed: data.completed,
-    })
-    .where(eq(projects.id, data.id));
+    });
+  } else {
+    await db
+      .update(projects)
+      .set({
+        title: data.title,
+        notes: data.notes,
+        parentProjectId: data.parentProjectId,
+        completed: data.completed,
+      })
+      .where(eq(projects.id, data.id));
+  }
 
   revalidatePath("/", "layout");
 }

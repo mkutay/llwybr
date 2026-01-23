@@ -5,7 +5,7 @@ import { createContext, useContext, useState } from "react";
 interface DialogContextValue<TValue> {
   open: boolean;
   value: TValue | null;
-  openDialog: (value: TValue) => void;
+  openDialog: (value: TValue | null) => void;
   closeDialog: () => void;
   setOpen: (open: boolean) => void;
 }
@@ -19,7 +19,7 @@ export function createDialogContext<TValue>() {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<TValue | null>(null);
 
-    const openDialog = (newValue: TValue) => {
+    const openDialog = (newValue: TValue | null) => {
       setValue(newValue);
       setOpen(true);
     };

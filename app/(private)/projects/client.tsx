@@ -27,14 +27,14 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { deleteProject, editProject } from "@/lib/actions";
+import { deleteProject, upsertProject } from "@/lib/actions";
 import type { projects } from "@/lib/db/schema";
-import { editProjectSchema } from "@/lib/schemas";
+import { upsertProjectSchema } from "@/lib/schemas";
 
 type Project = typeof projects.$inferSelect;
 
 const { Provider: EditDialogProvider, useDialog: useEditDialog } =
-  createDialogContext<Project>();
+  createDialogContext<Project | null>();
 
 export { EditDialogProvider };
 
@@ -45,12 +45,13 @@ export function EditDialog({
 }) {
   const { open, value: project, closeDialog, setOpen } = useEditDialog();
 
-  const form = useForm<z.infer<typeof editProjectSchema>>({
-    resolver: zodResolver(editProjectSchema),
+  const form = useForm<z.infer<typeof upsertProjectSchema>>({
+    resolver: zodResolver(upsertProjectSchema),
   });
 
-  // Reset form with project values when project changes
+  // Reset form when project changes (edit mode) or becomes null (create mode)
   if (project && form.getValues().id !== project.id) {
+    // Edit mode: populate with project data
     form.reset({
       id: project.id,
       title: project.title,
@@ -58,12 +59,21 @@ export function EditDialog({
       completed: project.completed,
       parentProjectId: project.parentProjectId,
     });
+  } else if (project === null && form.getValues().id !== undefined) {
+    // Create mode: reset to empty values
+    form.reset({
+      id: undefined,
+      title: "",
+      notes: "",
+      completed: null,
+      parentProjectId: null,
+    });
   }
 
-  const onSubmit = async (data: z.infer<typeof editProjectSchema>) => {
+  const onSubmit = async (data: z.infer<typeof upsertProjectSchema>) => {
     closeDialog();
-    await editProject(data);
-    toast.success("Edited.");
+    await upsertProject(data);
+    toast.success(project ? "Edited." : "Project created successfully");
   };
 
   const handleDelete = async () => {
@@ -78,9 +88,13 @@ export function EditDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
+          <DialogTitle>
+            {project ? "Edit Project" : "Create Project"}
+          </DialogTitle>
           <DialogDescription>
-            Make changes to the project details and save.
+            {project
+              ? "Make changes to the project details and save."
+              : "Fill in the details to create a new project."}
           </DialogDescription>
         </DialogHeader>
         <form id="edit-project-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -141,15 +155,17 @@ export function EditDialog({
           </FieldGroup>
         </form>
         <DialogFooter className="sm:justify-between">
-          <Button variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
+          {project && (
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
           <div className="flex md:flex-row flex-col gap-2">
             <Button variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
             <Button type="submit" form="edit-project-form">
-              Submit
+              {project ? "Submit" : "Create"}
             </Button>
           </div>
         </DialogFooter>
@@ -172,9 +188,19 @@ export function EditButton({
   );
 }
 
+export function CreateButton() {
+  const { openDialog } = useEditDialog();
+
+  return (
+    <Button className="ml-auto w-fit mt-4" onClick={() => openDialog(null)}>
+      Create Project
+    </Button>
+  );
+}
+
 export function CompletedButton({ value }: { value: Project }) {
   const handleComplete = async (val: Project) => {
-    await editProject({ ...val, completed: new Date() });
+    await upsertProject({ ...val, completed: new Date() });
   };
 
   return <SharedCompletionButton value={value} onComplete={handleComplete} />;
