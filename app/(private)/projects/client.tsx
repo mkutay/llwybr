@@ -97,7 +97,6 @@ export function EditDialog({
     defaultValues: {
       id: "",
       title: "",
-      description: "",
       notes: "",
       parentProjectId: null,
       completed: null,
@@ -107,7 +106,6 @@ export function EditDialog({
   if (action) {
     form.setValue("id", action.id);
     form.setValue("title", action.title);
-    form.setValue("description", action.description);
     form.setValue("notes", action.notes);
     form.setValue("completed", action.completed);
     form.setValue("parentProjectId", action.parentProjectId);
@@ -147,24 +145,6 @@ export function EditDialog({
                   <Input
                     {...field}
                     id="title"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="description"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Description</FieldLabel>
-                  <Input
-                    {...field}
-                    id="description"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (

@@ -38,7 +38,6 @@ export function CreateProjectDialog({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       title: "",
-      description: "",
       notes: "",
       parentProjectId: null,
     },
@@ -74,24 +73,6 @@ export function CreateProjectDialog({
                   <Input
                     {...field}
                     id="title"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="description"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Description</FieldLabel>
-                  <Input
-                    {...field}
-                    id="description"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (

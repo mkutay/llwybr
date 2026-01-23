@@ -36,14 +36,11 @@ export default async function Page() {
                 <CompletedButton value={item} />
                 {item.title}
               </div>
-              {(item.description || item.notes) && (
-                <div className="ml-10 flex flex-col gap-1 break-all text-pretty text-justify text-muted-foreground">
-                  {item.description && <div>{item.description}</div>}
-                  {item.notes && (
-                    <pre className="font-mono text-sm whitespace-pre-wrap">
-                      {item.notes}
-                    </pre>
-                  )}
+              {item.notes && (
+                <div className="ml-10 break-all text-pretty text-justify text-muted-foreground">
+                  <pre className="font-mono text-sm whitespace-pre-wrap">
+                    {item.notes}
+                  </pre>
                 </div>
               )}
             </div>

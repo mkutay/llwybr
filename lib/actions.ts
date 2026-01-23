@@ -27,7 +27,6 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
     .insert(actions)
     .values({
       title: data.title,
-      description: data.description,
       notes: data.notes,
       deadline: data.deadline,
       projectId: data.projectId,
@@ -49,7 +48,6 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
     .update(actions)
     .set({
       title: data.title,
-      description: data.description,
       notes: data.notes,
       deadline: data.deadline,
       projectId: data.projectId,
@@ -63,7 +61,6 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
 export async function createProject(data: z.infer<typeof createProjectSchema>) {
   await db.insert(projects).values({
     title: data.title,
-    description: data.description,
     notes: data.notes,
     parentProjectId: data.parentProjectId,
   });
@@ -81,7 +78,6 @@ export async function editProject(data: z.infer<typeof editProjectSchema>) {
     .update(projects)
     .set({
       title: data.title,
-      description: data.description,
       notes: data.notes,
       parentProjectId: data.parentProjectId,
       completed: data.completed,
