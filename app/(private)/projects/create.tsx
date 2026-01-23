@@ -62,7 +62,7 @@ export function CreateProjectDialog({
             Fill in the details to create a new project.
           </DialogDescription>
         </DialogHeader>
-        <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="create-project-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="title"
@@ -123,7 +123,7 @@ export function CreateProjectDialog({
           <Button variant="secondary" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button type="submit" form="move-in-form">
+          <Button type="submit" form="create-project-form">
             Create
           </Button>
         </DialogFooter>

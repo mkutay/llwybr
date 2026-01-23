@@ -1,12 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Circle, CircleCheck, Ellipsis } from "lucide-react";
-import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
+import { createDialogContext } from "@/components/dialog-context";
+import {
+  CompletionButton as SharedCompletionButton,
+  EditButton as SharedEditButton,
+} from "@/components/entity-action-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,85 +33,31 @@ import { editProjectSchema } from "@/lib/schemas";
 
 type Project = typeof projects.$inferSelect;
 
-type EditDialogContextT = {
-  open: boolean;
-  openDialog: (value: Project) => void;
-  closeDialog: () => void;
-  setOpen: (open: boolean) => void;
-} & {
-  value: Project | null;
-};
+const { Provider: EditDialogProvider, useDialog: useEditDialog } =
+  createDialogContext<Project>();
 
-const EditDialogContext = createContext<EditDialogContextT | undefined>(
-  undefined,
-);
-
-export function EditDialogProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<Project | null>(null);
-
-  const openDialog = (newValue: Project) => {
-    setValue(newValue);
-    setOpen(true);
-  };
-
-  const closeDialog = () => {
-    setOpen(false);
-  };
-
-  return (
-    <EditDialogContext.Provider
-      value={{
-        open,
-        value,
-        openDialog,
-        closeDialog,
-        setOpen,
-      }}
-    >
-      {children}
-    </EditDialogContext.Provider>
-  );
-}
-
-function useEditDialog() {
-  const context = useContext(EditDialogContext);
-
-  if (context === undefined) {
-    throw new Error("useEditDialog must be used within a EditDialogProvider");
-  }
-
-  return context;
-}
+export { EditDialogProvider };
 
 export function EditDialog({
   projects,
 }: {
   projects: Array<{ id: string; title: string }>;
 }) {
-  const { open, value: action, closeDialog, setOpen } = useEditDialog();
+  const { open, value: project, closeDialog, setOpen } = useEditDialog();
 
   const form = useForm<z.infer<typeof editProjectSchema>>({
     resolver: zodResolver(editProjectSchema),
-    defaultValues: {
-      id: "",
-      title: "",
-      notes: "",
-      parentProjectId: null,
-      completed: null,
-    },
   });
 
-  if (action) {
-    form.setValue("id", action.id);
-    form.setValue("title", action.title);
-    form.setValue("notes", action.notes);
-    form.setValue("completed", action.completed);
-    form.setValue("parentProjectId", action.parentProjectId);
+  // Reset form with project values when project changes
+  if (project && form.getValues().id !== project.id) {
+    form.reset({
+      id: project.id,
+      title: project.title,
+      notes: project.notes,
+      completed: project.completed,
+      parentProjectId: project.parentProjectId,
+    });
   }
 
   const onSubmit = async (data: z.infer<typeof editProjectSchema>) => {
@@ -118,9 +67,9 @@ export function EditDialog({
   };
 
   const handleDelete = async () => {
-    if (!action) return;
+    if (!project) return;
     closeDialog();
-    await deleteProject(action.id);
+    await deleteProject(project.id);
     toast.success("Deleted.");
     form.reset();
   };
@@ -179,7 +128,7 @@ export function EditDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Parent</FieldLabel>
                   <ChooseProject
-                    projects={projects.filter((p) => p.id !== action?.id)}
+                    projects={projects.filter((p) => p.id !== project?.id)}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -219,31 +168,14 @@ export function EditButton({
   const { openDialog } = useEditDialog();
 
   return (
-    <Button
-      size="icon-sm"
-      variant="secondary"
-      onClick={() => openDialog(value)}
-      className={className}
-    >
-      <Ellipsis />
-    </Button>
+    <SharedEditButton value={value} onEdit={openDialog} className={className} />
   );
 }
 
 export function CompletedButton({ value }: { value: Project }) {
-  const handleComplete = async () => {
-    await editProject({ ...value, completed: new Date() });
+  const handleComplete = async (val: Project) => {
+    await editProject({ ...val, completed: new Date() });
   };
 
-  return (
-    <Button
-      size="icon-sm"
-      variant="ghost"
-      onClick={() => handleComplete()}
-      className="group"
-    >
-      <Circle className="group-hover:hidden flex" />
-      <CircleCheck className="hidden group-hover:flex" />
-    </Button>
-  );
+  return <SharedCompletionButton value={value} onComplete={handleComplete} />;
 }

@@ -1,13 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Circle, CircleCheck, Ellipsis } from "lucide-react";
-import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
+import { createDialogContext } from "@/components/dialog-context";
+import {
+  CompletionButton as SharedCompletionButton,
+  EditButton as SharedEditButton,
+} from "@/components/entity-action-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,92 +34,43 @@ import { editActionSchema } from "@/lib/schemas";
 
 type Action = typeof actions.$inferSelect;
 
-type EditDialogContextT = {
-  open: boolean;
-  openDialog: (value: Action) => void;
-  setOpen: (open: boolean) => void;
-} & {
-  value: Action | null;
-};
+const { Provider: EditDialogProvider, useDialog: useEditDialog } =
+  createDialogContext<Action>();
 
-const EditDialogContext = createContext<EditDialogContextT | undefined>(
-  undefined,
-);
-
-export function EditDialogProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<Action | null>(null);
-
-  const openDialog = (newValue: Action) => {
-    setValue(newValue);
-    setOpen(true);
-  };
-
-  return (
-    <EditDialogContext.Provider
-      value={{
-        open,
-        value,
-        openDialog,
-        setOpen,
-      }}
-    >
-      {children}
-    </EditDialogContext.Provider>
-  );
-}
-
-function useEditDialog() {
-  const context = useContext(EditDialogContext);
-
-  if (context === undefined) {
-    throw new Error("useEditDialog must be used within a EditDialogProvider");
-  }
-
-  return context;
-}
+export { EditDialogProvider };
 
 export function EditDialog({
   projects,
 }: {
   projects: Array<{ id: string; title: string }>;
 }) {
-  const { open, value: action, setOpen } = useEditDialog();
+  const { open, value: action, closeDialog, setOpen } = useEditDialog();
 
   const form = useForm<z.infer<typeof editActionSchema>>({
     resolver: zodResolver(editActionSchema),
-    defaultValues: {
-      id: "",
-      title: "",
-      notes: "",
-      deadline: null,
-      projectId: null,
-      completed: null,
-    },
   });
 
-  if (action) {
-    form.setValue("id", action.id);
-    form.setValue("title", action.title);
-    form.setValue("notes", action.notes);
-    form.setValue("deadline", action.deadline);
-    form.setValue("projectId", action.projectId);
-    form.setValue("completed", action.completed);
+  // Reset form with action values when action changes
+  if (action && form.getValues().id !== action.id) {
+    form.reset({
+      id: action.id,
+      title: action.title,
+      notes: action.notes,
+      deadline: action.deadline,
+      projectId: action.projectId,
+      completed: action.completed,
+    });
   }
 
   const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
-    setOpen(false);
+    closeDialog();
     await editAction(data);
     toast.success("Edited.");
   };
 
   const handleDelete = async () => {
     if (!action) return;
-    setOpen(false);
+    closeDialog();
     await deleteAction(action.id);
     toast.success("Deleted.");
     form.reset();
@@ -176,10 +130,7 @@ export function EditDialog({
                 <DateTimePicker
                   label="Deadline"
                   value={field.value}
-                  onChange={(e) => {
-                    console.log(e);
-                    field.onChange(e);
-                  }}
+                  onChange={field.onChange}
                   error={fieldState.error}
                   invalid={fieldState.invalid}
                 />
@@ -210,7 +161,7 @@ export function EditDialog({
             Delete
           </Button>
           <div className="flex md:flex-row flex-col gap-2">
-            <Button variant="secondary" onClick={() => setOpen(false)}>
+            <Button variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
             <Button type="submit" form="edit-action-form">
@@ -226,31 +177,13 @@ export function EditDialog({
 export function EditButton({ value }: { value: Action }) {
   const { openDialog } = useEditDialog();
 
-  return (
-    <Button
-      size="icon-sm"
-      variant="secondary"
-      onClick={() => openDialog(value)}
-    >
-      <Ellipsis />
-    </Button>
-  );
+  return <SharedEditButton value={value} onEdit={openDialog} />;
 }
 
 export function CompletedButton({ value }: { value: Action }) {
-  const handleComplete = async () => {
-    await editAction({ ...value, completed: new Date() });
+  const handleComplete = async (val: Action) => {
+    await editAction({ ...val, completed: new Date() });
   };
 
-  return (
-    <Button
-      size="icon-sm"
-      variant="ghost"
-      onClick={() => handleComplete()}
-      className="group"
-    >
-      <Circle className="group-hover:hidden flex" />
-      <CircleCheck className="hidden group-hover:flex" />
-    </Button>
-  );
+  return <SharedCompletionButton value={value} onComplete={handleComplete} />;
 }

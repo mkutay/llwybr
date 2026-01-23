@@ -2,12 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BringToFront } from "lucide-react";
-import { createContext, useContext, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
+import { createDialogContext } from "@/components/dialog-context";
+import { ActionButton } from "@/components/entity-action-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,85 +29,37 @@ import { Textarea } from "@/components/ui/textarea";
 import { deleteIn, moveInAction } from "@/lib/actions";
 import { moveInSchema } from "@/lib/schemas";
 
-interface MoveDialogContext {
-  open: boolean;
+interface InDialogValue {
   id: string;
   text: string;
-  openDialog: (id: string, text: string) => void;
-  closeDialog: () => void;
-  setOpen: (open: boolean) => void;
 }
 
-const MoveDialogContext = createContext<MoveDialogContext | undefined>(
-  undefined,
-);
+const { Provider: MoveDialogProvider, useDialog: useMoveDialog } =
+  createDialogContext<InDialogValue>();
 
-export function MoveDialogProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  const [id, setId] = useState("");
-  const [text, setText] = useState("");
-
-  const openDialog = (newId: string, newText: string) => {
-    setId(newId);
-    setText(newText);
-    setOpen(true);
-  };
-
-  const closeDialog = () => {
-    setOpen(false);
-  };
-
-  return (
-    <MoveDialogContext.Provider
-      value={{
-        open,
-        id,
-        text,
-        openDialog,
-        closeDialog,
-        setOpen,
-      }}
-    >
-      {children}
-    </MoveDialogContext.Provider>
-  );
-}
-
-function useMoveDialog() {
-  const context = useContext(MoveDialogContext);
-
-  if (context === undefined) {
-    throw new Error("useMoveDialog must be used within a MoveDialogProvider");
-  }
-
-  return context;
-}
+export { MoveDialogProvider };
 
 export function MoveDialog({
   projects,
 }: {
   projects: Array<{ id: string; title: string }>;
 }) {
-  const { open, id, text, closeDialog, setOpen } = useMoveDialog();
+  const { open, value, closeDialog, setOpen } = useMoveDialog();
 
   const form = useForm<z.infer<typeof moveInSchema>>({
     resolver: zodResolver(moveInSchema),
-    defaultValues: {
-      inId: "",
-      title: "",
-      notes: "",
-      deadline: null,
-      projectId: null,
-    },
   });
 
-  form.setValue("inId", id);
-  form.setValue("title", text);
-  form.setValue("notes", text);
+  // Reset form with value when it changes
+  if (value && form.getValues().inId !== value.id) {
+    form.reset({
+      inId: value.id,
+      title: value.text,
+      notes: value.text,
+      deadline: null,
+      projectId: null,
+    });
+  }
 
   const onSubmit = async (data: z.infer<typeof moveInSchema>) => {
     closeDialog();
@@ -116,8 +69,9 @@ export function MoveDialog({
   };
 
   const handleDelete = async () => {
+    if (!value) return;
     closeDialog();
-    await deleteIn(id);
+    await deleteIn(value.id);
     toast.success("Deleted.");
     form.reset();
   };
@@ -232,13 +186,10 @@ export function MoveButton({
   const { openDialog } = useMoveDialog();
 
   return (
-    <Button
-      size="icon-sm"
-      variant="secondary"
-      onClick={() => openDialog(id, text)}
+    <ActionButton
+      icon={BringToFront}
+      onClick={() => openDialog({ id, text })}
       className={className}
-    >
-      <BringToFront />
-    </Button>
+    />
   );
 }
