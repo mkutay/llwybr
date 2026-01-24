@@ -41,8 +41,10 @@ export { MoveDialogProvider };
 
 export function MoveDialog({
   projects,
+  popularProjects,
 }: {
   projects: Array<{ id: string; title: string }>;
+  popularProjects: Array<{ id: string; title: string }>;
 }) {
   const { open, value, closeDialog, setOpen } = useMoveDialog();
 
@@ -144,6 +146,7 @@ export function MoveDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Project</FieldLabel>
                   <ChooseProject
+                    popularProjects={popularProjects}
                     projects={projects}
                     value={field.value}
                     onChange={field.onChange}

@@ -1,4 +1,5 @@
 import { asc, isNull } from "drizzle-orm";
+import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
@@ -15,9 +16,11 @@ export default async function Page() {
     .from(projects)
     .orderBy(asc(projects.createdAt));
 
+  const popularProjects = await getPopularProjects(5);
+
   return (
     <MoveDialogProvider>
-      <MoveDialog projects={projectsData} />
+      <MoveDialog projects={projectsData} popularProjects={popularProjects} />
       <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
           <div

@@ -43,8 +43,10 @@ export { EditDialogProvider };
 
 export function EditDialog({
   projects,
+  popularProjects,
 }: {
   projects: Array<{ id: string; title: string }>;
+  popularProjects: Array<{ id: string; title: string }>;
 }) {
   const { open, value: action, closeDialog, setOpen } = useEditDialog();
 
@@ -147,6 +149,7 @@ export function EditDialog({
                   <FieldLabel>Project</FieldLabel>
                   <ChooseProject
                     projects={projects}
+                    popularProjects={popularProjects}
                     value={field.value}
                     onChange={field.onChange}
                   />

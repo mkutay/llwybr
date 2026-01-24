@@ -40,8 +40,10 @@ export { EditDialogProvider };
 
 export function EditDialog({
   projects,
+  popularProjects,
 }: {
   projects: Array<{ id: string; title: string }>;
+  popularProjects: Array<{ id: string; title: string }>;
 }) {
   const { open, value: project, closeDialog, setOpen } = useEditDialog();
 
@@ -149,6 +151,9 @@ export function EditDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Parent</FieldLabel>
                   <ChooseProject
+                    popularProjects={popularProjects.filter(
+                      (p) => p.id !== project?.id,
+                    )}
                     projects={projects.filter((p) => p.id !== project?.id)}
                     value={field.value}
                     onChange={field.onChange}

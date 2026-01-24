@@ -1,4 +1,5 @@
 import { asc, isNull } from "drizzle-orm";
+import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
@@ -21,9 +22,11 @@ export default async function Page() {
     .from(projects)
     .orderBy(asc(projects.createdAt));
 
+  const popularProjects = await getPopularProjects(5);
+
   return (
     <EditDialogProvider>
-      <EditDialog projects={projectsData} />
+      <EditDialog projects={projectsData} popularProjects={popularProjects} />
       <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
           <div

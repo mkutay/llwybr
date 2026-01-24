@@ -2,6 +2,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { asc, isNull } from "drizzle-orm";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
@@ -38,11 +39,13 @@ export default async function Page() {
     ),
   }));
 
+  const popularProjects = await getPopularProjects(5);
+
   return (
     <ActionsEditDialogProvider>
-      <ActionsEditDialog projects={data} />
+      <ActionsEditDialog projects={data} popularProjects={popularProjects} />
       <EditDialogProvider>
-        <EditDialog projects={data} />
+        <EditDialog projects={data} popularProjects={popularProjects} />
         <AccordionPrimitive.Root
           data-slot="accordion"
           type="multiple"
