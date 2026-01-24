@@ -33,6 +33,9 @@ export default async function Page() {
             <div className="flex flex-col">
               <div className="flex flex-row gap-2 items-center">
                 <CompletedButton value={item} />
+                {item.projectId
+                  ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
+                  : ""}
                 {item.title}
               </div>
               {item.notes && (
