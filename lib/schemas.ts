@@ -19,7 +19,7 @@ export const editActionSchema = z.object({
 
 export const upsertProjectSchema = z.object({
   id: z.uuid().optional(),
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required."),
   notes: z.string(),
   parentProjectId: z.uuid().nullable(),
   completed: z.date().nullable(),

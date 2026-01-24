@@ -47,6 +47,13 @@ export function EditDialog({
 
   const form = useForm<z.infer<typeof upsertProjectSchema>>({
     resolver: zodResolver(upsertProjectSchema),
+    defaultValues: {
+      id: undefined,
+      title: "",
+      notes: "",
+      completed: null,
+      parentProjectId: null,
+    },
   });
 
   // Reset form when project changes (edit mode) or becomes null (create mode)
@@ -73,7 +80,7 @@ export function EditDialog({
   const onSubmit = async (data: z.infer<typeof upsertProjectSchema>) => {
     closeDialog();
     await upsertProject(data);
-    toast.success(project ? "Edited." : "Project created successfully");
+    toast.success(project ? "Edited." : "Project created successfully.");
   };
 
   const handleDelete = async () => {
