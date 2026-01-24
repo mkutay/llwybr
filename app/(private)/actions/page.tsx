@@ -44,7 +44,9 @@ export default async function Page() {
               )}
             </div>
             <div className="flex flex-row gap-4 items-center ml-auto">
-              {item.deadline && <Deadline deadline={item.deadline} />}
+              {item.deadline && (
+                <Deadline deadline={item.deadline} className="text-sm" />
+              )}
               <EditButton value={item} />
             </div>
           </div>

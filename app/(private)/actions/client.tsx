@@ -190,12 +190,19 @@ export function CompletedButton({ value }: { value: Action }) {
   return <SharedCompletionButton value={value} onComplete={handleComplete} />;
 }
 
-export function Deadline({ deadline }: { deadline: Date }) {
+export function Deadline({
+  deadline,
+  className,
+}: {
+  deadline: Date;
+  className?: string;
+}) {
   return (
     <div
       className={cn(
-        "font-mono text-sm whitespace-nowrap",
+        "font-mono whitespace-nowrap",
         new Date() > deadline ? "text-destructive" : "text-foreground",
+        className,
       )}
     >
       {format(deadline, "PPp")}
