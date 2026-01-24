@@ -1,6 +1,4 @@
 import { asc, isNull } from "drizzle-orm";
-import { EntityList } from "@/components/entity-list";
-import { EntityListItem } from "@/components/entity-list-item";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
@@ -33,24 +31,30 @@ export default async function Page() {
   return (
     <EditDialogProvider>
       <EditDialog projects={data} />
-      <EntityList>
+      <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
-          <EntityListItem
+          <div
             key={item.id}
-            leading={<CompletedButton value={item} />}
-            title={item.title}
-            description={
-              item.notes ? (
+            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
+          >
+            <div className="flex flex-col">
+              <div className="flex flex-row gap-2 items-center">
+                <CompletedButton value={item} />
+                {item.title}
+              </div>
+              {item.notes && (
                 <div className="ml-10 break-all text-muted-foreground">
                   <div>{item.notes}</div>
                 </div>
-              ) : undefined
-            }
-            trailing={<EditButton value={item} />}
-          />
+              )}
+            </div>
+            <div className="flex flex-row gap-4 items-center ml-auto">
+              <EditButton value={item} />
+            </div>
+          </div>
         ))}
         <CreateButton />
-      </EntityList>
+      </div>
     </EditDialogProvider>
   );
 }

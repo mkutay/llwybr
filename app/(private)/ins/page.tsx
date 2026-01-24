@@ -1,6 +1,4 @@
 import { asc, isNull } from "drizzle-orm";
-import { EntityList } from "@/components/entity-list";
-import { EntityListItem } from "@/components/entity-list-item";
 import { db } from "@/lib/db/drizzle";
 import { ins, projects } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
@@ -20,15 +18,23 @@ export default async function Page() {
   return (
     <MoveDialogProvider>
       <MoveDialog projects={projectsData} />
-      <EntityList>
+      <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
-          <EntityListItem
+          <div
+            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
             key={item.id}
-            title={<span className="hyphens-auto">{item.text}</span>}
-            trailing={<MoveButton id={item.id} text={item.text} />}
-          />
+          >
+            <div className="flex flex-col">
+              <div className="flex flex-row gap-2 items-center">
+                <span className="hyphens-auto">{item.text}</span>
+              </div>
+            </div>
+            <div className="flex flex-row gap-4 items-center ml-auto">
+              <MoveButton id={item.id} text={item.text} />
+            </div>
+          </div>
         ))}
-      </EntityList>
+      </div>
     </MoveDialogProvider>
   );
 }

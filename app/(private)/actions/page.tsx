@@ -1,12 +1,9 @@
-import { format } from "date-fns";
 import { asc, isNull } from "drizzle-orm";
-import { EntityList } from "@/components/entity-list";
-import { EntityListItem } from "@/components/entity-list-item";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
-import { cn } from "@/lib/utils";
 import {
   CompletedButton,
+  Deadline,
   EditButton,
   EditDialog,
   EditDialogProvider,
@@ -27,41 +24,32 @@ export default async function Page() {
   return (
     <EditDialogProvider>
       <EditDialog projects={projectsData} />
-      <EntityList>
+      <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
-          <EntityListItem
+          <div
             key={item.id}
-            leading={<CompletedButton value={item} />}
-            title={item.title}
-            description={
-              item.notes ? (
+            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
+          >
+            <div className="flex flex-col">
+              <div className="flex flex-row gap-2 items-center">
+                <CompletedButton value={item} />
+                {item.title}
+              </div>
+              {item.notes && (
                 <div className="ml-10 break-all text-pretty text-justify text-muted-foreground">
                   <pre className="font-mono text-sm whitespace-pre-wrap">
                     {item.notes}
                   </pre>
                 </div>
-              ) : undefined
-            }
-            trailing={
-              <>
-                {item.deadline && (
-                  <div
-                    className={cn(
-                      "font-mono text-sm whitespace-nowrap",
-                      new Date() > item.deadline
-                        ? "text-destructive"
-                        : "text-foreground",
-                    )}
-                  >
-                    {format(item.deadline, "PPp")}
-                  </div>
-                )}
-                <EditButton value={item} />
-              </>
-            }
-          />
+              )}
+            </div>
+            <div className="flex flex-row gap-4 items-center ml-auto">
+              {item.deadline && <Deadline deadline={item.deadline} />}
+              <EditButton value={item} />
+            </div>
+          </div>
         ))}
-      </EntityList>
+      </div>
     </EditDialogProvider>
   );
 }

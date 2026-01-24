@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
@@ -31,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { deleteAction, editAction } from "@/lib/actions";
 import type { actions } from "@/lib/db/schema";
 import { editActionSchema } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 type Action = typeof actions.$inferSelect;
 
@@ -186,4 +188,17 @@ export function CompletedButton({ value }: { value: Action }) {
   };
 
   return <SharedCompletionButton value={value} onComplete={handleComplete} />;
+}
+
+export function Deadline({ deadline }: { deadline: Date }) {
+  return (
+    <div
+      className={cn(
+        "font-mono text-sm whitespace-nowrap",
+        new Date() > deadline ? "text-destructive" : "text-foreground",
+      )}
+    >
+      {format(deadline, "PPp")}
+    </div>
+  );
 }
