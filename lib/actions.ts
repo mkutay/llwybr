@@ -38,6 +38,7 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
 }
 
 export async function deleteAction(id: string) {
+  await db.delete(ins).where(eq(ins.moved, id));
   await db.delete(actions).where(eq(actions.id, id));
   revalidatePath("/", "layout");
 }
