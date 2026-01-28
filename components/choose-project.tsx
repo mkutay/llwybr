@@ -13,6 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { truncate } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 export function ChooseProject({
@@ -94,7 +95,7 @@ export function ChooseProject({
             className="flex-1"
             type="button"
           >
-            {p.title}
+            {truncate(p.title, 27)}
           </Button>
         ))}
       </div>
