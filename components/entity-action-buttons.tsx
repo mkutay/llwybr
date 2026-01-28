@@ -1,8 +1,9 @@
 "use client";
 
+import type { VariantProps } from "class-variance-authority";
 import type { LucideIcon } from "lucide-react";
 import { Circle, CircleCheck, Ellipsis } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface CompletionButtonProps<TValue> {
@@ -37,17 +38,19 @@ interface EditButtonProps<TValue> {
   value: TValue;
   onEdit: (value: TValue) => void;
   className?: string;
+  variant?: VariantProps<typeof buttonVariants>["variant"];
 }
 
 export function EditButton<TValue>({
   value,
   onEdit,
   className,
+  variant = "secondary",
 }: EditButtonProps<TValue>) {
   return (
     <Button
       size="icon-sm"
-      variant="secondary"
+      variant={variant}
       onClick={() => onEdit(value)}
       className={className}
     >

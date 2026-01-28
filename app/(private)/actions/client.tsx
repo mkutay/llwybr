@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { VariantProps } from "class-variance-authority";
 import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -12,7 +13,7 @@ import {
   CompletionButton as SharedCompletionButton,
   EditButton as SharedEditButton,
 } from "@/components/entity-action-buttons";
-import { Button } from "@/components/ui/button";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -179,10 +180,18 @@ export function EditDialog({
   );
 }
 
-export function EditButton({ value }: { value: Action }) {
+export function EditButton({
+  value,
+  variant = "secondary",
+}: {
+  value: Action;
+  variant?: VariantProps<typeof buttonVariants>["variant"];
+}) {
   const { openDialog } = useEditDialog();
 
-  return <SharedEditButton value={value} onEdit={openDialog} />;
+  return (
+    <SharedEditButton value={value} onEdit={openDialog} variant={variant} />
+  );
 }
 
 export function CompletedButton({ value }: { value: Action }) {

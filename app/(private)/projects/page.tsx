@@ -121,7 +121,7 @@ export default async function Page() {
                           className="text-sm"
                         />
                       )}
-                      <ActionsEditButton value={action} />
+                      <ActionsEditButton value={action} variant="outline" />
                     </div>
                   </div>
                 ))}
