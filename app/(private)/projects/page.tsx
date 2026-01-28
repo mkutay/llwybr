@@ -39,7 +39,7 @@ export default async function Page() {
     ),
   }));
 
-  const popularProjects = await getPopularProjects(5);
+  const popularProjects = await getPopularProjects(6);
 
   return (
     <ActionsEditDialogProvider>

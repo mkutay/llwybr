@@ -22,7 +22,7 @@ export default async function Page() {
     .from(projects)
     .orderBy(asc(projects.createdAt));
 
-  const popularProjects = await getPopularProjects(5);
+  const popularProjects = await getPopularProjects(6);
 
   return (
     <EditDialogProvider>
