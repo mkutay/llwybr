@@ -17,6 +17,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogNotes,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -94,93 +95,103 @@ export function EditDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {project ? "Edit Project" : "Create Project"}
-          </DialogTitle>
-          <DialogDescription>
-            {project
-              ? "Make changes to the project details and save."
-              : "Fill in the details to create a new project."}
-          </DialogDescription>
-        </DialogHeader>
-        <form id="edit-project-form" onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup>
-            <Controller
-              name="title"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Title</FieldLabel>
-                  <Input
-                    {...field}
-                    id="title"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="notes"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Notes</FieldLabel>
-                  <Textarea
-                    {...field}
-                    id="notes"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="parentProjectId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Parent</FieldLabel>
-                  <ChooseProject
-                    popularProjects={popularProjects.filter(
-                      (p) => p.id !== project?.id,
+    <>
+      {open && (
+        <DialogNotes>
+          <ul className="space-y-2">
+            <li>Create "completable" projects.</li>
+            <li>Projects should have a clear end goal or deliverable.</li>
+          </ul>
+        </DialogNotes>
+      )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {project ? "Edit Project" : "Create Project"}
+            </DialogTitle>
+            <DialogDescription>
+              {project
+                ? "Make changes to the project details and save."
+                : "Fill in the details to create a new project."}
+            </DialogDescription>
+          </DialogHeader>
+          <form id="edit-project-form" onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup>
+              <Controller
+                name="title"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Title</FieldLabel>
+                    <Input
+                      {...field}
+                      id="title"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
                     )}
-                    projects={projects.filter((p) => p.id !== project?.id)}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
-        </form>
-        <DialogFooter>
-          {project && (
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="notes"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Notes</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="notes"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="parentProjectId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Parent</FieldLabel>
+                    <ChooseProject
+                      popularProjects={popularProjects.filter(
+                        (p) => p.id !== project?.id,
+                      )}
+                      projects={projects.filter((p) => p.id !== project?.id)}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </form>
+          <DialogFooter>
+            {project && (
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            )}
+            <Button variant="secondary" onClick={closeDialog}>
+              Cancel
             </Button>
-          )}
-          <Button variant="secondary" onClick={closeDialog}>
-            Cancel
-          </Button>
-          <Button type="submit" form="edit-project-form">
-            {project ? "Submit" : "Create"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <Button type="submit" form="edit-project-form">
+              {project ? "Submit" : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogNotes,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -79,99 +80,111 @@ export function MoveDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Move to Actions</DialogTitle>
-          <DialogDescription>
-            Fill in the details to move this In to your Actions.
-          </DialogDescription>
-        </DialogHeader>
-        <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup>
-            <Controller
-              name="title"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Title</FieldLabel>
-                  <Input
-                    {...field}
-                    id="title"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
+    <>
+      {open && (
+        <DialogNotes>
+          <ul className="space-y-2">
+            <li>
+              Actions are things that could be done <i>anytime</i>.
+            </li>
+            <li>Actions are physical and visible.</li>
+          </ul>
+        </DialogNotes>
+      )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move to Actions</DialogTitle>
+            <DialogDescription>
+              Fill in the details to move this In to your Actions.
+            </DialogDescription>
+          </DialogHeader>
+          <form id="move-in-form" onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup>
+              <Controller
+                name="title"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Title</FieldLabel>
+                    <Input
+                      {...field}
+                      id="title"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
-            <Controller
-              name="notes"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Notes</FieldLabel>
-                  <Textarea
-                    {...field}
-                    id="notes"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
+              <Controller
+                name="notes"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Notes</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="notes"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
-            <Controller
-              name="deadline"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <DateTimePicker
-                  label="Deadline"
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={fieldState.error}
-                  invalid={fieldState.invalid}
-                />
-              )}
-            />
-
-            <Controller
-              name="projectId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Project</FieldLabel>
-                  <ChooseProject
-                    popularProjects={popularProjects}
-                    projects={projects}
+              <Controller
+                name="deadline"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <DateTimePicker
+                    label="Deadline"
                     value={field.value}
                     onChange={field.onChange}
+                    error={fieldState.error}
+                    invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
-        </form>
-        <DialogFooter>
-          <Button variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
-          <Button variant="secondary" onClick={closeDialog}>
-            Cancel
-          </Button>
-          <Button type="submit" form="move-in-form">
-            Move
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                )}
+              />
+
+              <Controller
+                name="projectId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Project</FieldLabel>
+                    <ChooseProject
+                      popularProjects={popularProjects}
+                      projects={projects}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </form>
+          <DialogFooter>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+            <Button variant="secondary" onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button type="submit" form="move-in-form">
+              Move
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
