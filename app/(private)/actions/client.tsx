@@ -162,18 +162,16 @@ export function EditDialog({
             />
           </FieldGroup>
         </form>
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter>
           <Button variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
-          <div className="flex md:flex-row flex-col gap-2">
-            <Button variant="secondary" onClick={closeDialog}>
-              Cancel
-            </Button>
-            <Button type="submit" form="edit-action-form">
-              Submit
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={closeDialog}>
+            Cancel
+          </Button>
+          <Button type="submit" form="edit-action-form">
+            Submit
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

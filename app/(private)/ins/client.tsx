@@ -159,18 +159,16 @@ export function MoveDialog({
             />
           </FieldGroup>
         </form>
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter>
           <Button variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
-          <div className="flex md:flex-row flex-col gap-2">
-            <Button variant="secondary" onClick={closeDialog}>
-              Cancel
-            </Button>
-            <Button type="submit" form="move-in-form">
-              Move
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={closeDialog}>
+            Cancel
+          </Button>
+          <Button type="submit" form="move-in-form">
+            Move
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
