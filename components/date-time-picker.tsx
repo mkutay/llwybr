@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
@@ -32,6 +32,8 @@ export function DateTimePicker({
   const [open, setOpen] = useState(false);
 
   const updateDateTime = (newDate?: string, newTime?: string) => {
+    setDate(newDate ?? "");
+    setTime(newTime ?? "");
     const datePart = newDate ?? date;
     const timePart = newTime ?? time;
     if (datePart && timePart) {
@@ -73,9 +75,7 @@ export function DateTimePicker({
                 captionLayout="dropdown"
                 weekStartsOn={1}
                 onSelect={(selectedDate) => {
-                  const dateString = selectedDate?.toDateString() ?? "";
-                  setDate(dateString);
-                  updateDateTime(dateString);
+                  updateDateTime(selectedDate?.toDateString() ?? "");
                   setOpen(false);
                 }}
               />
@@ -85,11 +85,20 @@ export function DateTimePicker({
             type="time"
             value={time}
             onChange={(e) => {
-              setTime(e.target.value);
               updateDateTime(undefined, e.target.value);
             }}
             className="w-fit font-mono bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
           />
+          <Button
+            onClick={() => {
+              updateDateTime("", "");
+            }}
+            variant="outline"
+            size="icon"
+            type="button"
+          >
+            <X />
+          </Button>
         </div>
         <div className="flex flex-row flex-wrap gap-2">
           <Button
@@ -103,8 +112,6 @@ export function DateTimePicker({
               now.setHours(23);
               now.setMinutes(59);
               const timeString = convertTime(now);
-              setDate(dateString);
-              setTime(timeString);
               updateDateTime(dateString, timeString);
             }}
           >
@@ -122,8 +129,6 @@ export function DateTimePicker({
               tomorrow.setHours(23);
               tomorrow.setMinutes(59);
               const timeString = convertTime(tomorrow);
-              setDate(dateString);
-              setTime(timeString);
               updateDateTime(dateString, timeString);
             }}
           >
@@ -141,8 +146,6 @@ export function DateTimePicker({
               nextWeek.setHours(23);
               nextWeek.setMinutes(59);
               const timeString = convertTime(nextWeek);
-              setDate(dateString);
-              setTime(timeString);
               updateDateTime(dateString, timeString);
             }}
           >
@@ -162,12 +165,27 @@ export function DateTimePicker({
               thisWeekend.setHours(23);
               thisWeekend.setMinutes(59);
               const timeString = convertTime(thisWeekend);
-              setDate(dateString);
-              setTime(timeString);
               updateDateTime(dateString, timeString);
             }}
           >
             This Weekend
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              const inTwoWeeks = new Date();
+              inTwoWeeks.setDate(inTwoWeeks.getDate() + 14);
+              const dateString = inTwoWeeks.toDateString();
+              inTwoWeeks.setHours(23);
+              inTwoWeeks.setMinutes(59);
+              const timeString = convertTime(inTwoWeeks);
+              updateDateTime(dateString, timeString);
+            }}
+          >
+            In Two Weeks
           </Button>
         </div>
       </div>
