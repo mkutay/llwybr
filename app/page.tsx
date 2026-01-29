@@ -7,7 +7,10 @@ export const dynamic = "force-static";
 export const revalidate = 300;
 
 export default async function Home() {
-  const acs = await db.select().from(actions).where(isNull(actions.completed));
+  const acs = await db
+    .select()
+    .from(actions)
+    .where(and(isNull(actions.completed), isNull(actions.archived)));
 
   const now = new Date();
 
