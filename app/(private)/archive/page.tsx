@@ -1,4 +1,4 @@
-import { asc, desc, isNotNull } from "drizzle-orm";
+import { asc, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import { Deadline } from "../actions/client";
@@ -9,13 +9,17 @@ export default async function Page() {
     .select()
     .from(projects)
     .where(isNotNull(projects.archived))
-    .orderBy(desc(projects.archived));
+    .orderBy(asc(projects.archived), asc(projects.createdAt));
 
   const archivedActions = await db
     .select()
     .from(actions)
     .where(isNotNull(actions.archived))
-    .orderBy(desc(actions.archived));
+    .orderBy(
+      asc(actions.deadline),
+      asc(actions.createdAt),
+      asc(actions.archived),
+    );
 
   const projectsData = await db
     .select()
