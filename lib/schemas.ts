@@ -7,6 +7,7 @@ export const moveInSchema = z.object({
   notes: z.string(),
   deadline: z.date().nullable(),
   projectId: z.uuid().nullable(),
+  type: z.enum(actionType),
 });
 
 export const editActionSchema = z.object({

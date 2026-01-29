@@ -26,8 +26,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteIn, moveInAction } from "@/lib/actions";
+import { actionType } from "@/lib/db/schema";
 import { moveInSchema } from "@/lib/schemas";
 
 interface InDialogValue {
@@ -163,6 +171,38 @@ export function MoveDialog({
                       value={field.value}
                       onChange={field.onChange}
                     />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Type</FieldLabel>
+                    <Select
+                      defaultValue="Nothing"
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {actionType.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}

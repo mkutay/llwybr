@@ -29,6 +29,7 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
       notes: data.notes,
       deadline: data.deadline,
       projectId: data.projectId,
+      type: data.type,
     })
     .returning({ id: actions.id });
 
