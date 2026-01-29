@@ -69,6 +69,7 @@ export function MoveDialog({
       notes: value.text,
       deadline: null,
       projectId: null,
+      type: "Nothing",
     });
   }
 
