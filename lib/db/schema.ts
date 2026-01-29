@@ -1,10 +1,14 @@
 import {
   type AnyPgColumn,
+  pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+
+export const actionType = ["Waiting For", "Now", "Nothing"] as const;
+export const actionTypeEnum = pgEnum("action_type", actionType);
 
 export const projects = pgTable("projects", {
   id: uuid().primaryKey().defaultRandom(),
@@ -27,6 +31,7 @@ export const actions = pgTable("actions", {
   projectId: uuid().references(() => projects.id),
   completed: timestamp({ withTimezone: true }),
   archived: timestamp({ withTimezone: true }),
+  type: actionTypeEnum().default("Nothing").notNull(),
 });
 
 export const ins = pgTable("ins", {

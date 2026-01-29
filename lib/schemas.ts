@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { actionType } from "./db/schema";
 
 export const moveInSchema = z.object({
   inId: z.uuid(),
@@ -16,6 +17,7 @@ export const editActionSchema = z.object({
   projectId: z.uuid().nullable(),
   completed: z.date().nullable(),
   archived: z.date().nullable(),
+  type: z.enum(actionType),
 });
 
 export const upsertProjectSchema = z.object({

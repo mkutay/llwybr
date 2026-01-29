@@ -24,11 +24,19 @@ export default async function Page() {
 
   const popularProjects = await getPopularProjects(6);
 
+  const sortedData = data.sort((a, b) => {
+    if (a.type === "Now") return -1;
+    if (b.type === "Now") return 1;
+    if (a.type === "Waiting For") return 1;
+    if (b.type === "Waiting For") return -1;
+    return 0;
+  });
+
   return (
     <EditDialogProvider>
       <EditDialog projects={projectsData} popularProjects={popularProjects} />
       <div className="divide-y divide-border flex flex-col">
-        {data.map((item) => (
+        {sortedData.map((item) => (
           <div
             key={item.id}
             className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
@@ -36,6 +44,8 @@ export default async function Page() {
             <div className="flex flex-col">
               <div className="flex flex-row gap-2 items-center">
                 <CompletedButton value={item} />
+                {item.type === "Now" && "[NOW] "}
+                {item.type === "Waiting For" && "[WAITING FOR] "}
                 {item.projectId
                   ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
                   : ""}

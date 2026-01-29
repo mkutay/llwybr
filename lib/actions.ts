@@ -53,6 +53,7 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
       projectId: data.projectId,
       completed: data.completed,
       archived: data.archived,
+      type: data.type,
     })
     .where(eq(actions.id, data.id));
 

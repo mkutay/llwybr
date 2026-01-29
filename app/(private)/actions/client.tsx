@@ -30,9 +30,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteAction, editAction } from "@/lib/actions";
-import type { actions } from "@/lib/db/schema";
+import { type actions, actionType } from "@/lib/db/schema";
 import { editActionSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +72,8 @@ export function EditDialog({
       deadline: action.deadline,
       projectId: action.projectId,
       completed: action.completed,
+      type: action.type,
+      archived: action.archived,
     });
   }
 
@@ -180,6 +189,38 @@ export function EditDialog({
                   </Field>
                 )}
               />
+
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Type</FieldLabel>
+                    <Select
+                      defaultValue="Nothing"
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {actionType.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </FieldGroup>
           </form>
           <DialogFooter>
@@ -192,7 +233,11 @@ export function EditDialog({
             <Button variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
-            <Button type="submit" form="edit-action-form">
+            <Button
+              type="submit"
+              form="edit-action-form"
+              onClick={() => console.log(form.getValues())}
+            >
               Submit
             </Button>
           </DialogFooter>
