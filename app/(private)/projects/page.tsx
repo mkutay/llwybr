@@ -1,5 +1,5 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { asc, isNull } from "drizzle-orm";
+import { and, asc, isNull } from "drizzle-orm";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPopularProjects } from "@/lib/algorithms";
@@ -24,13 +24,13 @@ export default async function Page() {
   const projectsList = await db
     .select()
     .from(projects)
-    .where(isNull(projects.completed))
+    .where(and(isNull(projects.completed), isNull(projects.archived)))
     .orderBy(asc(projects.createdAt));
 
   const actionsByProject = await db
     .select()
     .from(actions)
-    .where(isNull(actions.completed));
+    .where(and(isNull(actions.completed), isNull(actions.archived)));
 
   const data = projectsList.map((project) => ({
     ...project,
@@ -77,7 +77,10 @@ export default async function Page() {
                             <ChevronRight className="text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200" />
                           </Button>
                         )}
-                        <CompletedButton value={item} />
+                        <CompletedButton
+                          value={item}
+                          disabled={item.actions.length > 0}
+                        />
                       </div>
                       {item.title}
                     </div>
@@ -88,7 +91,16 @@ export default async function Page() {
                     )}
                   </div>
                   <div className="flex flex-row gap-4 items-center ml-auto">
-                    <EditButton value={item} />
+                    <EditButton
+                      value={{
+                        ...item,
+                        hasChildren:
+                          item.actions.length > 0 ||
+                          projectsList.filter(
+                            (p) => p.parentProjectId === item.id,
+                          ).length > 0,
+                      }}
+                    />
                   </div>
                 </div>
               </AccordionPrimitive.Header>

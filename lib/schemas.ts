@@ -15,6 +15,7 @@ export const editActionSchema = z.object({
   deadline: z.date().nullable(),
   projectId: z.uuid().nullable(),
   completed: z.date().nullable(),
+  archived: z.date().nullable(),
 });
 
 export const upsertProjectSchema = z.object({
@@ -23,4 +24,5 @@ export const upsertProjectSchema = z.object({
   notes: z.string(),
   parentProjectId: z.uuid().nullable(),
   completed: z.date().nullable(),
+  archived: z.date().nullable(),
 });

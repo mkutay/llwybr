@@ -14,6 +14,7 @@ export const projects = pgTable("projects", {
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   parentProjectId: uuid().references((): AnyPgColumn => projects.id),
   completed: timestamp({ withTimezone: true }),
+  archived: timestamp({ withTimezone: true }),
 });
 
 export const actions = pgTable("actions", {
@@ -25,6 +26,7 @@ export const actions = pgTable("actions", {
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   projectId: uuid().references(() => projects.id),
   completed: timestamp({ withTimezone: true }),
+  archived: timestamp({ withTimezone: true }),
 });
 
 export const ins = pgTable("ins", {

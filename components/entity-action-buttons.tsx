@@ -10,12 +10,14 @@ interface CompletionButtonProps<TValue> {
   value: TValue;
   onComplete: (value: TValue) => Promise<void>;
   className?: string;
+  disabled?: boolean;
 }
 
 export function CompletionButton<TValue>({
   value,
   onComplete,
   className,
+  disabled = false,
 }: CompletionButtonProps<TValue>) {
   const handleComplete = async () => {
     await onComplete(value);
@@ -27,6 +29,7 @@ export function CompletionButton<TValue>({
       variant="ghost"
       onClick={handleComplete}
       className={cn("group", className)}
+      disabled={disabled}
     >
       <Circle className="group-hover:hidden flex" />
       <CircleCheck className="hidden group-hover:flex" />

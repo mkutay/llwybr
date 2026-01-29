@@ -46,6 +46,11 @@ export function Nav() {
               Projects
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/archive" prefetch={false}>
+              Archive
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
             <DropdownMenuPortal>

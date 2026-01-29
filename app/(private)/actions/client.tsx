@@ -82,6 +82,14 @@ export function EditDialog({
     form.reset();
   };
 
+  const handleArchive = async () => {
+    if (!action) return;
+    closeDialog();
+    await editAction({ ...action, archived: new Date() });
+    toast.success("Archived.");
+    form.reset();
+  };
+
   return (
     <>
       {open && (
@@ -177,6 +185,9 @@ export function EditDialog({
           <DialogFooter>
             <Button variant="destructive" onClick={handleDelete}>
               Delete
+            </Button>
+            <Button variant="outline" onClick={handleArchive}>
+              Archive
             </Button>
             <Button variant="secondary" onClick={closeDialog}>
               Cancel

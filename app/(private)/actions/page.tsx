@@ -1,4 +1,4 @@
-import { asc, isNull } from "drizzle-orm";
+import { and, asc, isNull } from "drizzle-orm";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
@@ -14,7 +14,7 @@ export default async function Page() {
   const data = await db
     .select()
     .from(actions)
-    .where(isNull(actions.completed))
+    .where(and(isNull(actions.completed), isNull(actions.archived)))
     .orderBy(asc(actions.deadline), asc(actions.createdAt));
 
   const projectsData = await db

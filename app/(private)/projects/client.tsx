@@ -32,7 +32,9 @@ import { deleteProject, upsertProject } from "@/lib/actions";
 import type { projects } from "@/lib/db/schema";
 import { upsertProjectSchema } from "@/lib/schemas";
 
-type Project = typeof projects.$inferSelect;
+type Project = typeof projects.$inferSelect & {
+  hasChildren?: boolean;
+};
 
 const { Provider: EditDialogProvider, useDialog: useEditDialog } =
   createDialogContext<Project | null>();
@@ -91,6 +93,14 @@ export function EditDialog({
     closeDialog();
     await deleteProject(project.id);
     toast.success("Deleted.");
+    form.reset();
+  };
+
+  const handleArchive = async () => {
+    if (!project) return;
+    closeDialog();
+    await upsertProject({ ...project, archived: new Date() });
+    toast.success("Archived.");
     form.reset();
   };
 
@@ -178,10 +188,24 @@ export function EditDialog({
           </form>
           <DialogFooter>
             {project && (
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete
-              </Button>
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={project.hasChildren}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleArchive}
+                  disabled={project.hasChildren}
+                >
+                  Archive
+                </Button>
+              </>
             )}
+
             <Button variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
@@ -219,10 +243,22 @@ export function CreateButton() {
   );
 }
 
-export function CompletedButton({ value }: { value: Project }) {
+export function CompletedButton({
+  value,
+  disabled = false,
+}: {
+  value: Project;
+  disabled?: boolean;
+}) {
   const handleComplete = async (val: Project) => {
     await upsertProject({ ...val, completed: new Date() });
   };
 
-  return <SharedCompletionButton value={value} onComplete={handleComplete} />;
+  return (
+    <SharedCompletionButton
+      value={value}
+      onComplete={handleComplete}
+      disabled={disabled}
+    />
+  );
 }

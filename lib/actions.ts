@@ -52,6 +52,7 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
       deadline: data.deadline,
       projectId: data.projectId,
       completed: data.completed,
+      archived: data.archived,
     })
     .where(eq(actions.id, data.id));
 
@@ -78,6 +79,7 @@ export async function upsertProject(data: z.infer<typeof upsertProjectSchema>) {
         notes: data.notes,
         parentProjectId: data.parentProjectId,
         completed: data.completed,
+        archived: data.archived,
       })
       .where(eq(projects.id, data.id));
   }
