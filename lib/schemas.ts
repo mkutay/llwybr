@@ -10,6 +10,13 @@ export const moveInSchema = z.object({
   type: z.enum(actionType),
 });
 
+export const moveInProjectSchema = z.object({
+  inId: z.uuid(),
+  title: z.string().min(1, "Title is required."),
+  notes: z.string(),
+  parentProjectId: z.uuid().nullable(),
+});
+
 export const editActionSchema = z.object({
   id: z.uuid(),
   title: z.string().min(1),

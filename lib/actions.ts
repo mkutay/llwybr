@@ -7,6 +7,7 @@ import { db } from "./db/drizzle";
 import { actions, ins, projects } from "./db/schema";
 import type {
   editActionSchema,
+  moveInProjectSchema,
   moveInSchema,
   upsertProjectSchema,
 } from "./schemas";
@@ -32,6 +33,23 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
       type: data.type,
     })
     .returning({ id: actions.id });
+
+  await db.update(ins).set({ moved: id }).where(eq(ins.id, data.inId));
+
+  revalidatePath("/", "layout");
+}
+
+export async function moveInProjectAction(
+  data: z.infer<typeof moveInProjectSchema>,
+) {
+  const [{ id }] = await db
+    .insert(projects)
+    .values({
+      title: data.title,
+      notes: data.notes,
+      parentProjectId: data.parentProjectId,
+    })
+    .returning({ id: projects.id });
 
   await db.update(ins).set({ moved: id }).where(eq(ins.id, data.inId));
 

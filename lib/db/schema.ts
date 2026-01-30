@@ -38,5 +38,5 @@ export const ins = pgTable("ins", {
   id: uuid().primaryKey().defaultRandom(),
   text: text().default("").notNull(),
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
-  moved: uuid().references(() => actions.id),
+  moved: uuid(), // references either actions.id or projects.id
 });
