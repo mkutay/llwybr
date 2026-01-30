@@ -1,15 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Circle, CircleCheck, Ellipsis } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { createDialogContext } from "@/components/dialog-context";
-import {
-  CompletionButton as SharedCompletionButton,
-  EditButton as SharedEditButton,
-} from "@/components/entity-action-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -234,7 +231,13 @@ export function EditButton({
   const { openDialog } = useEditDialog();
 
   return (
-    <SharedEditButton value={value} onEdit={openDialog} className={className} />
+    <Button
+      size="icon-sm"
+      onClick={() => openDialog(value)}
+      className={className}
+    >
+      <Ellipsis />
+    </Button>
   );
 }
 
@@ -260,10 +263,15 @@ export function CompletedButton({
   };
 
   return (
-    <SharedCompletionButton
-      value={value}
-      onComplete={handleComplete}
+    <Button
+      size="icon-sm"
+      variant="ghost"
+      onClick={() => handleComplete(value)}
+      className="group"
       disabled={disabled}
-    />
+    >
+      <Circle className="group-hover:hidden flex" />
+      <CircleCheck className="hidden group-hover:flex" />
+    </Button>
   );
 }

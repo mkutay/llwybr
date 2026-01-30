@@ -9,7 +9,6 @@ import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { createDialogContext } from "@/components/dialog-context";
-import { ActionButton } from "@/components/entity-action-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -373,10 +372,13 @@ export function MoveButton({
   const { openDialog } = useMoveDialog();
 
   return (
-    <ActionButton
-      icon={BringToFront}
+    <Button
+      size="icon-sm"
       onClick={() => openDialog({ id, text })}
       className={className}
-    />
+      variant="secondary"
+    >
+      <BringToFront />
+    </Button>
   );
 }
