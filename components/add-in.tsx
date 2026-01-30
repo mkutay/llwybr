@@ -10,6 +10,7 @@ export function AddIn() {
   const [text, setText] = useState("");
 
   const handleAdd = async () => {
+    if (!text.trim()) return;
     setText("");
     await addIn(text);
     toast.success("Added!");
