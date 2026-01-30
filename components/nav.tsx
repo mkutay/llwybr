@@ -2,8 +2,9 @@
 
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +22,31 @@ import {
 export function Nav() {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey) {
+        switch (e.code) {
+          case "Digit1":
+            router.push("/ins");
+            break;
+          case "Digit2":
+            router.push("/actions");
+            break;
+          case "Digit3":
+            router.push("/projects");
+            break;
+          case "Digit4":
+            router.push("/archive");
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [router]);
 
   return (
     <div className="fixed bottom-4 left-4">
