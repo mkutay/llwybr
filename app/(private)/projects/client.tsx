@@ -58,6 +58,7 @@ export function EditDialog({
       notes: "",
       completed: null,
       parentProjectId: null,
+      archived: null,
     },
   });
 
@@ -70,6 +71,7 @@ export function EditDialog({
       notes: project.notes,
       completed: project.completed,
       parentProjectId: project.parentProjectId,
+      archived: project.archived,
     });
   } else if (project === null && form.getValues().id !== undefined) {
     // Create mode: reset to empty values
@@ -79,6 +81,7 @@ export function EditDialog({
       notes: "",
       completed: null,
       parentProjectId: null,
+      archived: null,
     });
   }
 
@@ -193,10 +196,12 @@ export function EditDialog({
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={project.hasChildren}
+                  type="button"
                 >
                   Delete
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleArchive}
                   disabled={project.hasChildren}
@@ -206,7 +211,7 @@ export function EditDialog({
               </>
             )}
 
-            <Button variant="secondary" onClick={closeDialog}>
+            <Button variant="secondary" onClick={closeDialog} type="button">
               Cancel
             </Button>
             <Button type="submit" form="edit-project-form">
