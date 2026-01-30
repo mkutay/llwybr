@@ -131,16 +131,24 @@ export function MoveDialog({
 
   return (
     <>
-      {open && openedForm === "action" && (
-        <DialogNotes>
-          <ul className="space-y-2">
-            <li>
-              Actions are things that could be done <i>anytime</i>.
-            </li>
-            <li>Actions are physical and visible.</li>
-          </ul>
-        </DialogNotes>
-      )}
+      {open &&
+        (openedForm === "action" ? (
+          <DialogNotes>
+            <ul className="space-y-2">
+              <li>
+                Actions are things that could be done <i>anytime</i>.
+              </li>
+              <li>Actions are physical and visible.</li>
+            </ul>
+          </DialogNotes>
+        ) : (
+          <DialogNotes>
+            <ul className="space-y-2">
+              <li>Create "completable" projects.</li>
+              <li>Projects should have a clear end goal or deliverable.</li>
+            </ul>
+          </DialogNotes>
+        ))}
       <Dialog open={open} onOpenChange={setOpen}>
         <Tabs
           orientation="horizontal"
