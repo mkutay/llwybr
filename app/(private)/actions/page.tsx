@@ -44,8 +44,7 @@ export default async function Page() {
             <div className="flex flex-col">
               <div className="flex flex-row gap-2 items-center">
                 <CompletedButton value={item} />
-                {item.type === "Now" && "[NOW] "}
-                {item.type === "Waiting For" && "[WAITING FOR] "}
+                {item.type !== "Nothing" && `[${item.type.toUpperCase()}] `}
                 {item.projectId
                   ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
                   : ""}

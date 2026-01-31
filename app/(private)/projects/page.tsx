@@ -116,6 +116,8 @@ export default async function Page() {
                     <div className="flex flex-col">
                       <div className="flex flex-row gap-2 items-center">
                         <ActionsCompletedButton value={action} />
+                        {action.type !== "Nothing" &&
+                          `[${action.type.toUpperCase()}] `}
                         {action.title}
                       </div>
                       {action.notes && (
