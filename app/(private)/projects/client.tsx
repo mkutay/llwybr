@@ -234,6 +234,7 @@ export function EditButton({
     <Button
       size="icon-sm"
       onClick={() => openDialog(value)}
+      variant="secondary"
       className={className}
     >
       <Ellipsis />
