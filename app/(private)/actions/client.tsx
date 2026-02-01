@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { VariantProps } from "class-variance-authority";
 import { format } from "date-fns";
 import { Circle, CircleCheck, Ellipsis } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
@@ -34,10 +35,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { deleteAction, editAction } from "@/lib/actions";
+import { deleteAction, editAction, moveActionToProject } from "@/lib/actions";
 import { type actions, actionType } from "@/lib/db/schema";
-import { editActionSchema } from "@/lib/schemas";
+import { editActionSchema, moveActionToProjectSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 type Action = typeof actions.$inferSelect;
@@ -60,8 +62,24 @@ export function EditDialog({
     resolver: zodResolver(editActionSchema),
   });
 
-  // Reset form with action values when action changes
-  if (action && form.getValues().id !== action.id) {
+  const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
+    closeDialog();
+    await editAction(data);
+    toast.success("Edited.");
+  };
+
+  const [openedForm, setOpenedForm] = useState("action");
+
+  const projectForm = useForm<z.infer<typeof moveActionToProjectSchema>>({
+    resolver: zodResolver(moveActionToProjectSchema),
+  });
+
+  // Reset form with value when it changes
+  if (
+    action &&
+    (form.getValues().id !== action.id ||
+      projectForm.getValues().actionId !== action.id)
+  ) {
     form.reset({
       id: action.id,
       title: action.title,
@@ -72,12 +90,39 @@ export function EditDialog({
       type: action.type,
       archived: action.archived,
     });
+
+    projectForm.reset({
+      actionId: action.id,
+      title: action.title,
+      notes: action.notes,
+      parentProjectId: null,
+    });
   }
 
-  const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
+  const onSubmitProject = async (
+    data: z.infer<typeof moveActionToProjectSchema>,
+  ) => {
     closeDialog();
-    await editAction(data);
-    toast.success("Edited.");
+    await moveActionToProject(data);
+    toast.success("Moved to projects.");
+    form.reset();
+    projectForm.reset();
+    setOpenedForm("action");
+  };
+
+  const handleTabChange = (value: string) => {
+    setOpenedForm(value);
+    if (value === "project") {
+      const values = form.getValues();
+      projectForm.setValue("title", values.title);
+      projectForm.setValue("notes", values.notes);
+      projectForm.setValue("parentProjectId", values.projectId);
+    } else {
+      const values = projectForm.getValues();
+      form.setValue("title", values.title);
+      form.setValue("notes", values.notes);
+      form.setValue("projectId", values.parentProjectId);
+    }
   };
 
   const handleDelete = async () => {
@@ -86,6 +131,8 @@ export function EditDialog({
     await deleteAction(action.id);
     toast.success("Deleted.");
     form.reset();
+    projectForm.reset();
+    setOpenedForm("action");
   };
 
   const handleArchive = async () => {
@@ -94,6 +141,8 @@ export function EditDialog({
     await editAction({ ...action, archived: new Date() });
     toast.success("Archived.");
     form.reset();
+    projectForm.reset();
+    setOpenedForm("action");
   };
 
   return (
@@ -109,136 +158,226 @@ export function EditDialog({
         </DialogNotes>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Action</DialogTitle>
-            <DialogDescription>
-              Make changes to the action details and save.
-            </DialogDescription>
-          </DialogHeader>
-          <form id="edit-action-form" onSubmit={form.handleSubmit(onSubmit)}>
-            <FieldGroup>
-              <Controller
-                name="title"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Title</FieldLabel>
-                    <Input
-                      {...field}
-                      id="title"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+        <Tabs
+          orientation="horizontal"
+          defaultValue="action"
+          value={openedForm}
+          onValueChange={handleTabChange}
+          className="hidden"
+        >
+          <DialogContent className="*:data-[slot=tabs-content]:space-y-4">
+            <TabsContent value="action">
+              <DialogHeader>
+                <DialogTitle>Edit Action</DialogTitle>
+                <DialogDescription>
+                  Make changes to the action details and save.
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                id="edit-action-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                <FieldGroup>
+                  <Controller
+                    name="title"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Title</FieldLabel>
+                        <Input
+                          {...field}
+                          id="title"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="notes"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Notes</FieldLabel>
-                    <Textarea
-                      {...field}
-                      id="notes"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="deadline"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <DateTimePicker
-                    label="Deadline"
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={fieldState.error}
-                    invalid={fieldState.invalid}
                   />
-                )}
-              />
 
-              <Controller
-                name="projectId"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Project</FieldLabel>
-                    <ChooseProject
-                      projects={projects}
-                      popularProjects={popularProjects}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                  <Controller
+                    name="notes"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Notes</FieldLabel>
+                        <Textarea
+                          {...field}
+                          id="notes"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
-                  </Field>
-                )}
-              />
+                  />
 
-              <Controller
-                name="type"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Type</FieldLabel>
-                    <Select
-                      defaultValue="Nothing"
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <SelectTrigger
-                        className="w-full"
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {actionType.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                  <Controller
+                    name="deadline"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <DateTimePicker
+                        label="Deadline"
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={fieldState.error}
+                        invalid={fieldState.invalid}
+                      />
                     )}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
-          </form>
-          <DialogFooter>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-            <Button variant="outline" onClick={handleArchive}>
-              Archive
-            </Button>
-            <Button variant="secondary" onClick={closeDialog}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              form="edit-action-form"
-              onClick={() => console.log(form.getValues())}
-            >
-              Submit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+                  />
+
+                  <Controller
+                    name="projectId"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Project</FieldLabel>
+                        <ChooseProject
+                          projects={projects}
+                          popularProjects={popularProjects}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="type"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Type</FieldLabel>
+                        <Select
+                          defaultValue="Nothing"
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger
+                            className="w-full"
+                            aria-invalid={fieldState.invalid}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {actionType.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              </form>
+            </TabsContent>
+            <TabsContent value="project">
+              <DialogHeader>
+                <DialogTitle>Move to Projects</DialogTitle>
+                <DialogDescription>
+                  Fill in the details to move this Action to your Projects.
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                id="move-action-project-form"
+                onSubmit={projectForm.handleSubmit(onSubmitProject)}
+              >
+                <FieldGroup>
+                  <Controller
+                    name="title"
+                    control={projectForm.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Title</FieldLabel>
+                        <Input
+                          {...field}
+                          id="title"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="notes"
+                    control={projectForm.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Notes</FieldLabel>
+                        <Textarea
+                          {...field}
+                          id="notes"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="parentProjectId"
+                    control={projectForm.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel>Project</FieldLabel>
+                        <ChooseProject
+                          popularProjects={popularProjects}
+                          projects={projects}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              </form>
+            </TabsContent>
+            <DialogFooter className="items-center">
+              <TabsList className="mr-auto">
+                <TabsTrigger value="action">Action</TabsTrigger>
+                <TabsTrigger value="project">Project</TabsTrigger>
+              </TabsList>
+              <Button variant="destructive" onClick={handleDelete} size="sm">
+                Delete
+              </Button>
+              <Button variant="outline" onClick={handleArchive} size="sm">
+                Archive
+              </Button>
+              <Button variant="secondary" onClick={closeDialog} size="sm">
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                type="submit"
+                form={
+                  openedForm === "action"
+                    ? "edit-action-form"
+                    : "move-action-project-form"
+                }
+              >
+                {openedForm === "action" ? "Submit" : "Move"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Tabs>
       </Dialog>
     </>
   );

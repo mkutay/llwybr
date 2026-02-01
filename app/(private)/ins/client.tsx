@@ -161,8 +161,8 @@ export function MoveDialog({
           onValueChange={handleTabChange}
           className="hidden"
         >
-          <DialogContent>
-            <TabsContent value="action" className="space-y-4">
+          <DialogContent className="*:data-[slot=tabs-content]:space-y-4">
+            <TabsContent value="action">
               <DialogHeader>
                 <DialogTitle>Move to Actions</DialogTitle>
                 <DialogDescription>
@@ -348,13 +348,14 @@ export function MoveDialog({
                 <TabsTrigger value="action">Action</TabsTrigger>
                 <TabsTrigger value="project">Project</TabsTrigger>
               </TabsList>
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="destructive" onClick={handleDelete} size="sm">
                 Delete
               </Button>
-              <Button variant="secondary" onClick={closeDialog}>
+              <Button variant="secondary" onClick={closeDialog} size="sm">
                 Cancel
               </Button>
               <Button
+                size="sm"
                 type="submit"
                 form={
                   openedForm === "action"

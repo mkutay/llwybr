@@ -190,6 +190,7 @@ export function EditDialog({
             {project && (
               <>
                 <Button
+                  size="sm"
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={project.hasChildren}
@@ -198,6 +199,7 @@ export function EditDialog({
                   Delete
                 </Button>
                 <Button
+                  size="sm"
                   type="button"
                   variant="outline"
                   onClick={handleArchive}
@@ -208,10 +210,15 @@ export function EditDialog({
               </>
             )}
 
-            <Button variant="secondary" onClick={closeDialog} type="button">
+            <Button
+              variant="secondary"
+              onClick={closeDialog}
+              type="button"
+              size="sm"
+            >
               Cancel
             </Button>
-            <Button type="submit" form="edit-project-form">
+            <Button type="submit" form="edit-project-form" size="sm">
               {project ? "Submit" : "Create"}
             </Button>
           </DialogFooter>

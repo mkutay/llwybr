@@ -17,6 +17,13 @@ export const moveInProjectSchema = z.object({
   parentProjectId: z.uuid().nullable(),
 });
 
+export const moveActionToProjectSchema = z.object({
+  actionId: z.uuid(),
+  title: z.string().min(1, "Title is required."),
+  notes: z.string(),
+  parentProjectId: z.uuid().nullable(),
+});
+
 export const editActionSchema = z.object({
   id: z.uuid(),
   title: z.string().min(1),
