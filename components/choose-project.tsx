@@ -90,7 +90,7 @@ export function ChooseProject({
           <Button
             key={p.id}
             variant="outline"
-            size="sm"
+            size="xs"
             onClick={() => onChange(p.id)}
             className="flex-1"
             type="button"

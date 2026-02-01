@@ -102,7 +102,7 @@ export function DateTimePicker({
         </div>
         <div className="flex flex-row flex-wrap gap-2">
           <Button
-            size="sm"
+            size="xs"
             variant="outline"
             type="button"
             className="flex-1"
@@ -118,7 +118,7 @@ export function DateTimePicker({
             Tonight
           </Button>
           <Button
-            size="sm"
+            size="xs"
             variant="outline"
             type="button"
             className="flex-1"
@@ -135,7 +135,7 @@ export function DateTimePicker({
             Tomorrow
           </Button>
           <Button
-            size="sm"
+            size="xs"
             variant="outline"
             type="button"
             className="flex-1"
@@ -152,7 +152,7 @@ export function DateTimePicker({
             Next Week
           </Button>
           <Button
-            size="sm"
+            size="xs"
             variant="outline"
             type="button"
             className="flex-1"
@@ -170,8 +170,8 @@ export function DateTimePicker({
           >
             This Weekend
           </Button>
-          <Button
-            size="sm"
+          {/* <Button
+            size="xs"
             variant="outline"
             type="button"
             className="flex-1"
@@ -186,7 +186,7 @@ export function DateTimePicker({
             }}
           >
             In Two Weeks
-          </Button>
+          </Button> */}
         </div>
       </div>
       {invalid && error && <FieldError errors={[error]} />}
