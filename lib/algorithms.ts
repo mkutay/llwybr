@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/drizzle";
 import { actions, projects } from "./db/schema";
 
@@ -11,6 +11,7 @@ export async function getPopularProjects(
   const data = await db
     .select()
     .from(projects)
+    .where(and(isNull(projects.archived), isNull(projects.completed)))
     .leftJoin(actions, eq(actions.projectId, projects.id));
 
   const projectsWithActions = data.reduce<
