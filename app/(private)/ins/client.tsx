@@ -96,6 +96,7 @@ export function MoveDialog({
     toast.success("Moved to actions.");
     form.reset();
     projectForm.reset();
+    setOpenedForm("action");
   };
 
   const onSubmitProject = async (data: z.infer<typeof moveInProjectSchema>) => {
@@ -104,6 +105,7 @@ export function MoveDialog({
     toast.success("Moved to projects.");
     form.reset();
     projectForm.reset();
+    setOpenedForm("action");
   };
 
   const handleDelete = async () => {
@@ -112,6 +114,8 @@ export function MoveDialog({
     await deleteIn(value.id);
     toast.success("Deleted.");
     form.reset();
+    projectForm.reset();
+    setOpenedForm("action");
   };
 
   const handleTabChange = (value: string) => {
@@ -158,7 +162,7 @@ export function MoveDialog({
           className="hidden"
         >
           <DialogContent>
-            <TabsContent value="action">
+            <TabsContent value="action" className="space-y-4">
               <DialogHeader>
                 <DialogTitle>Move to Actions</DialogTitle>
                 <DialogDescription>
