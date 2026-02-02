@@ -10,6 +10,7 @@ import type {
   moveActionToProjectSchema,
   moveInProjectSchema,
   moveInSchema,
+  moveProjectToActionSchema,
   upsertProjectSchema,
 } from "./schemas";
 
@@ -72,6 +73,29 @@ export async function moveActionToProject(
   await db.update(ins).set({ moved: id }).where(eq(ins.moved, data.actionId));
   await db.delete(actions).where(eq(actions.id, data.actionId));
 
+  revalidatePath("/", "layout");
+}
+
+export async function moveProjectToAction(
+  data: z.infer<typeof moveProjectToActionSchema>,
+) {
+  const [{ id }] = await db
+    .insert(actions)
+    .values({
+      title: data.title,
+      notes: data.notes,
+      deadline: data.deadline,
+      projectId: data.projectId,
+      type: data.type,
+    })
+    .returning({ id: actions.id });
+
+  await db
+    .update(ins)
+    .set({ moved: id })
+    .where(eq(ins.moved, data.sourceProjectId));
+
+  await deleteProject(data.sourceProjectId);
   revalidatePath("/", "layout");
 }
 

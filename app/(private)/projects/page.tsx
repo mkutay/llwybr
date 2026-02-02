@@ -14,7 +14,6 @@ import {
 } from "../actions/client";
 import {
   CompletedButton,
-  CreateButton,
   EditButton,
   EditDialog,
   EditDialogProvider,
@@ -147,7 +146,6 @@ export default async function Page() {
                 </AccordionPrimitive.Content>
               </AccordionPrimitive.Item>
             ))}
-          <CreateButton />
         </AccordionPrimitive.Root>
       </EditDialogProvider>
     </ActionsEditDialogProvider>

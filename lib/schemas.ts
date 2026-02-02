@@ -35,6 +35,15 @@ export const editActionSchema = z.object({
   type: z.enum(actionType),
 });
 
+export const moveProjectToActionSchema = z.object({
+  sourceProjectId: z.uuid(),
+  title: z.string().min(1, "Title is required."),
+  notes: z.string(),
+  deadline: z.date().nullable(),
+  projectId: z.uuid().nullable(),
+  type: z.enum(actionType),
+});
+
 export const upsertProjectSchema = z.object({
   id: z.uuid().optional(),
   title: z.string().min(1, "Title is required."),
