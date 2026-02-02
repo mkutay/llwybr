@@ -87,8 +87,10 @@ export default async function Page() {
                         {item.title}
                       </div>
                       {item.notes && (
-                        <div className="ml-18.5 break-all text-muted-foreground">
-                          <div>{item.notes}</div>
+                        <div className="ml-18.5 break-all text-pretty text-justify text-muted-foreground">
+                          <pre className="font-mono text-sm whitespace-pre-wrap">
+                            {item.notes}
+                          </pre>
                         </div>
                       )}
                     </div>
