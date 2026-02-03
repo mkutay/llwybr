@@ -33,7 +33,23 @@ export default async function Home() {
   const prjs = await db
     .select()
     .from(projects)
-    .where(isNull(projects.completed));
+    .where(and(isNull(projects.completed), isNull(projects.archived)));
+
+  const completedProjects = await db
+    .select()
+    .from(projects)
+    .where(isNotNull(projects.completed));
+
+  const completedProjectsToday = await db
+    .select()
+    .from(projects)
+    .where(
+      and(
+        isNotNull(projects.completed),
+        gte(projects.completed, startOfDay(now)),
+        lt(projects.completed, endOfDay(now)),
+      ),
+    );
 
   return (
     <div className="flex flex-col gap-2 justify-center items-center min-h-screen font-mono">
@@ -42,7 +58,8 @@ export default async function Home() {
       </p>
       <p className="text-lg leading-relaxed">active projects: {prjs.length}</p>
       <p className="text-lg leading-relaxed">
-        completed actions: {completed.length} (today: {completedToday.length})
+        completed: {completed.length + completedProjects.length} (today:{" "}
+        {completedToday.length + completedProjectsToday.length})
       </p>
     </div>
   );
