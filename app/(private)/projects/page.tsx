@@ -23,7 +23,7 @@ export default async function Page() {
   const projectsList = await db
     .select()
     .from(projects)
-    .where(and(isNull(projects.completed)))
+    .where(and(isNull(projects.completed), isNull(projects.archived)))
     .orderBy(asc(projects.createdAt));
 
   const actionsByProject = await db

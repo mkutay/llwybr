@@ -20,6 +20,7 @@ export default async function Page() {
   const projectsData = await db
     .select()
     .from(projects)
+    .where(and(isNull(projects.completed), isNull(projects.archived)))
     .orderBy(asc(projects.createdAt));
 
   const popularProjects = await getPopularProjects(6);
