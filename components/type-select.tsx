@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState } from "react";
 import { actionType } from "@/lib/db/schema";
+import { Button } from "./ui/button";
 
 type Type = (typeof actionType)[number];
 
@@ -18,18 +13,25 @@ interface TypeSelectProps {
 }
 
 export function TypeSelect({ onChange, value, invalid }: TypeSelectProps) {
+  const [selectedType, setSelectedType] = useState<Type>(value);
+
   return (
-    <Select defaultValue="Nothing" onValueChange={onChange} value={value}>
-      <SelectTrigger className="w-full" aria-invalid={invalid}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {actionType.map((type) => (
-          <SelectItem key={type} value={type}>
-            {type}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex flex-row *:flex-1 flex-wrap gap-2">
+      {actionType.map((type) => (
+        <Button
+          type="button"
+          key={type}
+          variant={type === selectedType ? "default" : "secondary"}
+          onClick={() => {
+            setSelectedType(type);
+            onChange(type);
+          }}
+          size="sm"
+          aria-invalid={invalid}
+        >
+          {type}
+        </Button>
+      ))}
+    </div>
   );
 }
