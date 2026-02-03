@@ -11,6 +11,7 @@ import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { createDialogContext } from "@/components/dialog-context";
+import { TypeSelect } from "@/components/type-select";
 import { Button, type buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,17 +29,10 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteAction, editAction, moveActionToProject } from "@/lib/actions";
-import { type actions, actionType } from "@/lib/db/schema";
+import type { actions } from "@/lib/db/schema";
 import { editActionSchema, moveActionToProjectSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
@@ -253,25 +247,11 @@ export function EditDialog({
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel>Type</FieldLabel>
-                        <Select
-                          defaultValue="Nothing"
-                          onValueChange={field.onChange}
+                        <TypeSelect
                           value={field.value}
-                        >
-                          <SelectTrigger
-                            className="w-full"
-                            aria-invalid={fieldState.invalid}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {actionType.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          onChange={field.onChange}
+                          invalid={fieldState.invalid}
+                        />
                         {fieldState.invalid && (
                           <FieldError errors={[fieldState.error]} />
                         )}
