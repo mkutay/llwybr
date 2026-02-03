@@ -1,5 +1,5 @@
 import { CheckIcon, ChevronsUpDownIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -28,6 +28,18 @@ export function ChooseProject({
   value: string | null;
 }) {
   const [projectsOpen, setProjectsOpen] = useState(false);
+
+  useEffect(() => {
+    if (projectsOpen) {
+      // Use setTimeout to ensure the component is fully rendered
+      setTimeout(() => {
+        const input = document.querySelector(
+          '[data-slot="command-input"]',
+        ) as HTMLInputElement;
+        input.focus();
+      }, 0);
+    }
+  }, [projectsOpen]);
 
   return (
     <div className="flex flex-col gap-2">
