@@ -16,7 +16,7 @@ export function Deadline({
         className,
       )}
     >
-      {format(deadline, "PPp")}
+      {format(deadline, "PP, HH:mm")}
     </div>
   );
 }
