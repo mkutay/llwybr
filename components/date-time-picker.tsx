@@ -1,5 +1,5 @@
 import { ChevronDown, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Field, FieldError, FieldLabel } from "./ui/field";
@@ -20,6 +20,18 @@ function convertTime(t: Date) {
   return `${hours}:${minutes}`;
 }
 
+function dateToIso(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function isoToDate(iso: string): Date {
+  const date = new Date(`${iso}T00:00:00Z`);
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
 export function DateTimePicker({
   label,
   value,
@@ -27,19 +39,40 @@ export function DateTimePicker({
   error,
   invalid,
 }: DateTimePickerProps) {
-  const [date, setDate] = useState(value?.toLocaleDateString() ?? "");
+  const [date, setDate] = useState(value ? dateToIso(value) : "");
   const [time, setTime] = useState(value ? convertTime(value) : "");
   const [open, setOpen] = useState(false);
 
-  const updateDateTime = (newDate?: string, newTime?: string) => {
-    setDate(newDate ?? "");
-    setTime(newTime ?? "");
-    const datePart = newDate ?? date;
-    const timePart = newTime ?? time;
+  // Sync local state with external value changes
+  useEffect(() => {
+    if (value) {
+      setDate(dateToIso(value));
+      setTime(convertTime(value));
+    } else {
+      setDate("");
+      setTime("");
+    }
+  }, [value]);
+
+  const updateDateTime = (newDate: string, newTime: string) => {
+    setDate(newDate);
+    setTime(newTime);
+
+    if (newDate === "" && newTime === "") {
+      onChange(null);
+      return;
+    }
+
+    const datePart = newDate !== "" ? newDate : date;
+    const timePart = newTime !== "" ? newTime : time;
+
     if (datePart && timePart) {
-      onChange(new Date(`${datePart} ${timePart}`));
+      const d = isoToDate(datePart);
+      const [hours, minutes] = timePart.split(":").map(Number);
+      d.setHours(hours, minutes, 0, 0);
+      onChange(d);
     } else if (datePart) {
-      onChange(new Date(datePart));
+      onChange(isoToDate(datePart));
     } else if (timePart) {
       const today = new Date();
       const [hours, minutes] = timePart.split(":").map(Number);
@@ -61,7 +94,7 @@ export function DateTimePicker({
                 variant="outline"
                 className="justify-between font-normal flex-1 font-mono"
               >
-                {date ? new Date(date).toLocaleDateString() : "Select date"}
+                {date ? isoToDate(date).toLocaleDateString() : "Select date"}
                 <ChevronDown />
               </Button>
             </PopoverTrigger>
@@ -71,11 +104,14 @@ export function DateTimePicker({
             >
               <Calendar
                 mode="single"
-                selected={new Date(date)}
+                selected={date ? isoToDate(date) : undefined}
                 captionLayout="dropdown"
                 weekStartsOn={1}
                 onSelect={(selectedDate) => {
-                  updateDateTime(selectedDate?.toDateString() ?? "");
+                  updateDateTime(
+                    selectedDate ? dateToIso(selectedDate) : "",
+                    time,
+                  );
                   setOpen(false);
                 }}
               />
@@ -85,7 +121,7 @@ export function DateTimePicker({
             type="time"
             value={time}
             onChange={(e) => {
-              updateDateTime(undefined, e.target.value);
+              updateDateTime(date, e.target.value);
             }}
             className="w-fit font-mono bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
           />
@@ -108,9 +144,8 @@ export function DateTimePicker({
             className="flex-1"
             onClick={() => {
               const now = new Date();
-              const dateString = now.toDateString();
-              now.setHours(23);
-              now.setMinutes(59);
+              const dateString = dateToIso(now);
+              now.setHours(23, 59, 0, 0);
               const timeString = convertTime(now);
               updateDateTime(dateString, timeString);
             }}
@@ -125,9 +160,8 @@ export function DateTimePicker({
             onClick={() => {
               const tomorrow = new Date();
               tomorrow.setDate(tomorrow.getDate() + 1);
-              const dateString = tomorrow.toDateString();
-              tomorrow.setHours(23);
-              tomorrow.setMinutes(59);
+              const dateString = dateToIso(tomorrow);
+              tomorrow.setHours(23, 59, 0, 0);
               const timeString = convertTime(tomorrow);
               updateDateTime(dateString, timeString);
             }}
@@ -142,9 +176,8 @@ export function DateTimePicker({
             onClick={() => {
               const nextWeek = new Date();
               nextWeek.setDate(nextWeek.getDate() + 7);
-              const dateString = nextWeek.toDateString();
-              nextWeek.setHours(23);
-              nextWeek.setMinutes(59);
+              const dateString = dateToIso(nextWeek);
+              nextWeek.setHours(23, 59, 0, 0);
               const timeString = convertTime(nextWeek);
               updateDateTime(dateString, timeString);
             }}
@@ -161,9 +194,8 @@ export function DateTimePicker({
               const thisWeekend = new Date();
               const daysUntilSunday = 7 - thisWeekend.getDay();
               thisWeekend.setDate(thisWeekend.getDate() + daysUntilSunday);
-              const dateString = thisWeekend.toDateString();
-              thisWeekend.setHours(23);
-              thisWeekend.setMinutes(59);
+              const dateString = dateToIso(thisWeekend);
+              thisWeekend.setHours(23, 59, 0, 0);
               const timeString = convertTime(thisWeekend);
               updateDateTime(dateString, timeString);
             }}
