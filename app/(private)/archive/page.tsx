@@ -1,7 +1,7 @@
 import { asc, isNotNull } from "drizzle-orm";
+import { Deadline } from "@/components/deadline";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
-import { Deadline } from "../actions/client";
 import { UnarchiveActionButton, UnarchiveProjectButton } from "./client";
 
 export default async function Page() {

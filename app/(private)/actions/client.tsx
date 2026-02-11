@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { VariantProps } from "class-variance-authority";
-import { format } from "date-fns";
 import { Circle, CircleCheck, Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -34,7 +33,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { deleteAction, editAction, moveActionToProject } from "@/lib/actions";
 import type { actions } from "@/lib/db/schema";
 import { editActionSchema, moveActionToProjectSchema } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
 
 type Action = typeof actions.$inferSelect;
 
@@ -394,25 +392,5 @@ export function CompletedButton({ value }: { value: Action }) {
       <Circle className="group-hover:hidden flex" />
       <CircleCheck className="hidden group-hover:flex" />
     </Button>
-  );
-}
-
-export function Deadline({
-  deadline,
-  className,
-}: {
-  deadline: Date;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "font-mono whitespace-nowrap",
-        new Date() > deadline ? "text-destructive" : "text-foreground",
-        className,
-      )}
-    >
-      {format(deadline, "PPp")}
-    </div>
   );
 }

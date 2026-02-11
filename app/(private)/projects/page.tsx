@@ -1,6 +1,7 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { and, asc, isNull } from "drizzle-orm";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { Deadline } from "@/components/deadline";
 import { Button } from "@/components/ui/button";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
@@ -10,7 +11,6 @@ import {
   EditButton as ActionsEditButton,
   EditDialog as ActionsEditDialog,
   EditDialogProvider as ActionsEditDialogProvider,
-  Deadline,
 } from "../actions/client";
 import {
   CompletedButton,

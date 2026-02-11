@@ -1,10 +1,10 @@
 import { and, asc, isNull } from "drizzle-orm";
+import { Deadline } from "@/components/deadline";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, projects } from "@/lib/db/schema";
 import {
   CompletedButton,
-  Deadline,
   EditButton,
   EditDialog,
   EditDialogProvider,
