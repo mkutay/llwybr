@@ -39,8 +39,12 @@ export function DateTimePicker({
   error,
   invalid,
 }: DateTimePickerProps) {
-  const [date, setDate] = useState(value ? dateToIso(value) : "");
-  const [time, setTime] = useState(value ? convertTime(value) : "");
+  const [date, setDate] = useState<string | undefined>(
+    value ? dateToIso(value) : undefined,
+  );
+  const [time, setTime] = useState<string | undefined>(
+    value ? convertTime(value) : undefined,
+  );
   const [open, setOpen] = useState(false);
 
   // Sync local state with external value changes
@@ -49,22 +53,25 @@ export function DateTimePicker({
       setDate(dateToIso(value));
       setTime(convertTime(value));
     } else {
-      setDate("");
-      setTime("");
+      setDate(undefined);
+      setTime(undefined);
     }
   }, [value]);
 
-  const updateDateTime = (newDate: string, newTime: string) => {
+  const updateDateTime = (
+    newDate: string | undefined,
+    newTime: string | undefined,
+  ) => {
     setDate(newDate);
     setTime(newTime);
 
-    if (newDate === "" && newTime === "") {
+    if (!newDate && !newTime) {
       onChange(null);
       return;
     }
 
-    const datePart = newDate !== "" ? newDate : date;
-    const timePart = newTime !== "" ? newTime : time;
+    const datePart = newDate ?? date;
+    const timePart = newTime ?? time;
 
     if (datePart && timePart) {
       const d = isoToDate(datePart);
@@ -109,7 +116,7 @@ export function DateTimePicker({
                 weekStartsOn={1}
                 onSelect={(selectedDate) => {
                   updateDateTime(
-                    selectedDate ? dateToIso(selectedDate) : "",
+                    selectedDate ? dateToIso(selectedDate) : undefined,
                     time,
                   );
                   setOpen(false);
@@ -119,15 +126,15 @@ export function DateTimePicker({
           </Popover>
           <Input
             type="time"
-            value={time}
+            value={time ?? ""}
             onChange={(e) => {
-              updateDateTime(date, e.target.value);
+              updateDateTime(date, e.target.value || undefined);
             }}
             className="w-fit font-mono bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
           />
           <Button
             onClick={() => {
-              updateDateTime("", "");
+              updateDateTime(undefined, undefined);
             }}
             variant="outline"
             size="icon"
