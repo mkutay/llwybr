@@ -29,16 +29,16 @@ export function Nav() {
       if (e.altKey) {
         switch (e.code) {
           case "Digit1":
-            router.push("/ins");
+            router.push("/p/ins");
             break;
           case "Digit2":
-            router.push("/actions");
+            router.push("/p/actions");
             break;
           case "Digit3":
-            router.push("/projects");
+            router.push("/p/projects");
             break;
           case "Digit4":
-            router.push("/archive");
+            router.push("/p/archive");
             break;
         }
       }
@@ -58,22 +58,22 @@ export function Nav() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <Link href="/ins" prefetch={false}>
+            <Link href="/p/ins" prefetch={false}>
               Ins
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/actions" prefetch={false}>
+            <Link href="/p/actions" prefetch={false}>
               Actions
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/projects" prefetch={false}>
+            <Link href="/p/projects" prefetch={false}>
               Projects
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/archive" prefetch={false}>
+            <Link href="/p/archive" prefetch={false}>
               Archive
             </Link>
           </DropdownMenuItem>
