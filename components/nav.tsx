@@ -40,6 +40,9 @@ export function Nav() {
           case "Digit4":
             router.push("/p/archive");
             break;
+          case "Digit5":
+            router.push("/p/completed");
+            break;
         }
       }
     };
@@ -75,6 +78,11 @@ export function Nav() {
           <DropdownMenuItem asChild>
             <Link href="/p/archive" prefetch={false}>
               Archive
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/p/completed" prefetch={false}>
+              Completed
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
