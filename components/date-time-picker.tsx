@@ -199,7 +199,17 @@ export function DateTimePicker({
             onClick={() => {
               // makes it sunday night
               const thisWeekend = new Date();
-              const daysUntilSunday = 7 - thisWeekend.getDay();
+              const today = thisWeekend.getDay();
+              let daysUntilSunday: number;
+
+              if (today === 0 || today === 6) {
+                // Already on weekend (Sunday or Saturday), use today
+                daysUntilSunday = 0;
+              } else {
+                // Weekday, go to next Sunday
+                daysUntilSunday = 7 - today;
+              }
+
               thisWeekend.setDate(thisWeekend.getDate() + daysUntilSunday);
               const dateString = dateToIso(thisWeekend);
               thisWeekend.setHours(23, 59, 0, 0);
