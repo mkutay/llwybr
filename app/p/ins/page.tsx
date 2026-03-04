@@ -1,7 +1,7 @@
 import { and, asc, isNull } from "drizzle-orm";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
-import { ins, projects } from "@/lib/db/schema";
+import { ins, projects, tags } from "@/lib/db/schema";
 import { MoveButton, MoveDialog, MoveDialogProvider } from "./client";
 
 export default async function Page() {
@@ -19,9 +19,15 @@ export default async function Page() {
 
   const popularProjects = await getPopularProjects(6);
 
+  const allTags = await db.select().from(tags).orderBy(asc(tags.name));
+
   return (
     <MoveDialogProvider>
-      <MoveDialog projects={projectsData} popularProjects={popularProjects} />
+      <MoveDialog
+        projects={projectsData}
+        popularProjects={popularProjects}
+        allTags={allTags}
+      />
       <div className="divide-y divide-border flex flex-col">
         {data.map((item) => (
           <div

@@ -5,7 +5,7 @@ import { Deadline } from "@/components/deadline";
 import { Button } from "@/components/ui/button";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
-import { actions, projects } from "@/lib/db/schema";
+import { actions, actionTags, projects, tags } from "@/lib/db/schema";
 import {
   CompletedButton as ActionsCompletedButton,
   EditButton as ActionsEditButton,
@@ -40,11 +40,30 @@ export default async function Page() {
 
   const popularProjects = await getPopularProjects(6);
 
+  const allTags = await db.select().from(tags).orderBy(asc(tags.name));
+
+  const allActionTags = await db.select().from(actionTags);
+  const actionTagIds: Record<string, string[]> = {};
+  for (const at of allActionTags) {
+    if (!at.actionId || !at.tagId) continue;
+    if (!actionTagIds[at.actionId]) actionTagIds[at.actionId] = [];
+    actionTagIds[at.actionId].push(at.tagId);
+  }
+
   return (
     <ActionsEditDialogProvider>
-      <ActionsEditDialog projects={data} popularProjects={popularProjects} />
+      <ActionsEditDialog
+        projects={data}
+        popularProjects={popularProjects}
+        allTags={allTags}
+        actionTagIds={actionTagIds}
+      />
       <EditDialogProvider>
-        <EditDialog projects={data} popularProjects={popularProjects} />
+        <EditDialog
+          projects={data}
+          popularProjects={popularProjects}
+          allTags={allTags}
+        />
         <AccordionPrimitive.Root
           data-slot="accordion"
           type="multiple"

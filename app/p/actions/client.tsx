@@ -8,6 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
+import { ChooseTags } from "@/components/choose-tags";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { createDialogContext } from "@/components/dialog-context";
 import { TypeSelect } from "@/components/type-select";
@@ -44,9 +45,13 @@ export { EditDialogProvider };
 export function EditDialog({
   projects,
   popularProjects,
+  allTags,
+  actionTagIds,
 }: {
   projects: Array<{ id: string; title: string }>;
   popularProjects: Array<{ id: string; title: string }>;
+  allTags: Array<{ id: string; name: string }>;
+  actionTagIds: Record<string, string[]>;
 }) {
   const { open, value: action, closeDialog, setOpen } = useEditDialog();
 
@@ -81,6 +86,7 @@ export function EditDialog({
       completed: action.completed,
       type: action.type,
       archived: action.archived,
+      tagIds: actionTagIds[action.id] ?? [],
     });
 
     projectForm.reset({
@@ -130,7 +136,11 @@ export function EditDialog({
   const handleArchive = async () => {
     if (!action) return;
     closeDialog();
-    await editAction({ ...action, archived: new Date() });
+    await editAction({
+      ...action,
+      archived: new Date(),
+      tagIds: actionTagIds[action.id] ?? [],
+    });
     toast.success("Archived.");
     form.reset();
     projectForm.reset();
@@ -253,6 +263,21 @@ export function EditDialog({
                         {fieldState.invalid && (
                           <FieldError errors={[fieldState.error]} />
                         )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="tagIds"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Tags</FieldLabel>
+                        <ChooseTags
+                          allTags={allTags}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </Field>
                     )}
                   />
@@ -379,7 +404,7 @@ export function EditButton({
 
 export function CompletedButton({ value }: { value: Action }) {
   const handleComplete = async (val: Action) => {
-    await editAction({ ...val, completed: new Date() });
+    await editAction({ ...val, completed: new Date(), tagIds: [] });
   };
 
   return (

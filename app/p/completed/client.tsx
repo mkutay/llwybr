@@ -30,8 +30,6 @@ type PendingItem =
   | { kind: "action"; value: Action }
   | { kind: "project"; value: Project };
 
-// ── Uncomplete dialog context ────────────────────────────────────────────────
-
 const UncompleteContext = createContext<{
   requestAction: (action: Action) => void;
   requestProject: (project: Project) => void;
@@ -50,7 +48,7 @@ function UncompleteDialogProvider({ children }: { children: React.ReactNode }) {
   const handleUncomplete = async () => {
     if (!pending) return;
     if (pending.kind === "action") {
-      await editAction({ ...pending.value, completed: null });
+      await editAction({ ...pending.value, completed: null, tagIds: [] });
     } else {
       await upsertProject({ ...pending.value, completed: null });
     }
@@ -114,8 +112,6 @@ export function UncompleteProjectButton({ value }: { value: Project }) {
     </Button>
   );
 }
-
-// ── Main view ────────────────────────────────────────────────────────────────
 
 export function CompletedView({
   actionsData,

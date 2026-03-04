@@ -22,6 +22,13 @@
       "when": 1768700000000,
       "tag": "0002_completed_timestamps_and_moved_fk",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772647333373,
+      "tag": "0003_young_mimic",
+      "breakpoints": true
     }
   ]
 }

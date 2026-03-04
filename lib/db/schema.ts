@@ -40,3 +40,15 @@ export const ins = pgTable("ins", {
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   moved: uuid(), // references either actions.id or projects.id
 });
+
+export const tags = pgTable("tags", {
+  id: uuid().primaryKey().defaultRandom(),
+  name: text().notNull(),
+  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+});
+
+export const actionTags = pgTable("action_tags", {
+  actionId: uuid().references(() => actions.id),
+  tagId: uuid().references(() => tags.id),
+  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+});

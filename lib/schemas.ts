@@ -8,6 +8,7 @@ export const moveInSchema = z.object({
   deadline: z.date().nullable(),
   projectId: z.uuid().nullable(),
   type: z.enum(actionType),
+  tagIds: z.array(z.uuid()),
 });
 
 export const moveInProjectSchema = z.object({
@@ -33,6 +34,7 @@ export const editActionSchema = z.object({
   completed: z.date().nullable(),
   archived: z.date().nullable(),
   type: z.enum(actionType),
+  tagIds: z.array(z.uuid()),
 });
 
 export const moveProjectToActionSchema = z.object({
@@ -42,6 +44,7 @@ export const moveProjectToActionSchema = z.object({
   deadline: z.date().nullable(),
   projectId: z.uuid().nullable(),
   type: z.enum(actionType),
+  tagIds: z.array(z.uuid()),
 });
 
 export const upsertProjectSchema = z.object({

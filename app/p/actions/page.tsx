@@ -2,7 +2,7 @@ import { and, asc, isNull } from "drizzle-orm";
 import { Deadline } from "@/components/deadline";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
-import { actions, projects } from "@/lib/db/schema";
+import { actions, actionTags, projects, tags } from "@/lib/db/schema";
 import {
   CompletedButton,
   EditButton,
@@ -25,6 +25,16 @@ export default async function Page() {
 
   const popularProjects = await getPopularProjects(6);
 
+  const allTags = await db.select().from(tags).orderBy(asc(tags.name));
+
+  const allActionTags = await db.select().from(actionTags);
+  const actionTagIds: Record<string, string[]> = {};
+  for (const at of allActionTags) {
+    if (!at.actionId || !at.tagId) continue;
+    if (!actionTagIds[at.actionId]) actionTagIds[at.actionId] = [];
+    actionTagIds[at.actionId].push(at.tagId);
+  }
+
   const sortedData = data.sort((a, b) => {
     if (a.type === "Now") return -1;
     if (b.type === "Now") return 1;
@@ -35,7 +45,12 @@ export default async function Page() {
 
   return (
     <EditDialogProvider>
-      <EditDialog projects={projectsData} popularProjects={popularProjects} />
+      <EditDialog
+        projects={projectsData}
+        popularProjects={popularProjects}
+        allTags={allTags}
+        actionTagIds={actionTagIds}
+      />
       <div className="divide-y divide-border flex flex-col">
         {sortedData.map((item) => (
           <div

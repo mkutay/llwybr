@@ -7,6 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
+import { ChooseTags } from "@/components/choose-tags";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { createDialogContext } from "@/components/dialog-context";
 import { TypeSelect } from "@/components/type-select";
@@ -49,9 +50,11 @@ export { EditDialogProvider };
 export function EditDialog({
   projects,
   popularProjects,
+  allTags,
 }: {
   projects: Array<{ id: string; title: string }>;
   popularProjects: Array<{ id: string; title: string }>;
+  allTags: Array<{ id: string; name: string }>;
 }) {
   const { open, value: project, closeDialog, setOpen } = useEditDialog();
   const [openedForm, setOpenedForm] = useState("project");
@@ -91,6 +94,7 @@ export function EditDialog({
       deadline: null,
       projectId: null,
       type: "Nothing",
+      tagIds: [],
     });
   }
 
@@ -345,6 +349,21 @@ export function EditDialog({
                         {fieldState.invalid && (
                           <FieldError errors={[fieldState.error]} />
                         )}
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="tagIds"
+                    control={actionForm.control}
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel>Tags</FieldLabel>
+                        <ChooseTags
+                          allTags={allTags}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </Field>
                     )}
                   />

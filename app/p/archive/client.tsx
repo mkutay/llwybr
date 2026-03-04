@@ -11,7 +11,7 @@ type Project = typeof projects.$inferSelect;
 
 export function UnarchiveActionButton({ value }: { value: Action }) {
   const handleUnarchive = async () => {
-    await editAction({ ...value, archived: null });
+    await editAction({ ...value, archived: null, tagIds: [] });
     toast.success("Unarchived action.");
   };
 
