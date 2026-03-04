@@ -1,9 +1,10 @@
 "use client";
 
-import { PlusIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { createTag } from "@/lib/actions";
+import { PencilIcon, PlusIcon, XIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createTag, deleteTag, updateTag } from "@/lib/actions";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import {
   Command,
   CommandEmpty,
@@ -17,6 +18,14 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Input } from "./ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "./ui/sheet";
 
 interface Tag {
   id: string;
@@ -37,6 +46,12 @@ export function ChooseTags({ allTags, value, onChange }: ChooseTagsProps) {
   const [localTags, setLocalTags] = useState<Tag[]>(allTags);
   const [creating, setCreating] = useState(false);
 
+  // Edit dialog state
+  const [editingTag, setEditingTag] = useState<Tag | null>(null);
+  const [editName, setEditName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const editInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (open) {
       setTimeout(() => {
@@ -47,6 +62,13 @@ export function ChooseTags({ allTags, value, onChange }: ChooseTagsProps) {
       }, 0);
     }
   }, [open]);
+
+  // Focus edit input when dialog opens
+  useEffect(() => {
+    if (editingTag) {
+      setTimeout(() => editInputRef.current?.focus(), 0);
+    }
+  }, [editingTag]);
 
   const selectedTags = localTags.filter((t) => value.includes(t.id));
   const unselectedTags = localTags.filter((t) => !value.includes(t.id));
@@ -83,71 +105,170 @@ export function ChooseTags({ allTags, value, onChange }: ChooseTagsProps) {
     }
   };
 
-  return (
-    <div className="flex flex-row flex-wrap gap-1 items-center">
-      {selectedTags.map((tag) => (
-        <Badge
-          key={tag.id}
-          variant="secondary"
-          className="group flex items-center relative"
-        >
-          <span className="group-hover:opacity-0 opacity-100 transition-opacity">
-            {tag.name}
-          </span>
-          <button
-            type="button"
-            onClick={() => removeTag(tag.id)}
-            className="group-hover:opacity-100 opacity-0 absolute inset-0 flex items-center justify-center transition-opacity"
-            aria-label={`Remove tag ${tag.name}`}
-          >
-            <XIcon className="size-3" />
-          </button>
-        </Badge>
-      ))}
+  const openEditDialog = (tag: Tag, e: React.MouseEvent) => {
+    e.stopPropagation(); // don't select the tag
+    setEditingTag(tag);
+    setEditName(tag.name);
+    setOpen(false); // close the dropdown
+  };
 
-      <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
-          <Badge asChild variant="secondary">
-            <button type="button" aria-label="Add tag" className="h-5.5">
-              <PlusIcon className="size-3" />
+  const handleSaveEdit = async () => {
+    if (!editingTag || !editName.trim() || saving) return;
+    setSaving(true);
+    try {
+      const updated = await updateTag(editingTag.id, editName);
+      setLocalTags((prev) =>
+        prev.map((t) => (t.id === updated.id ? updated : t)),
+      );
+      setEditingTag(null);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteTag = async () => {
+    if (!editingTag || saving) return;
+    setSaving(true);
+    try {
+      await deleteTag(editingTag.id);
+      setLocalTags((prev) => prev.filter((t) => t.id !== editingTag.id));
+      onChange(value.filter((id) => id !== editingTag.id));
+      setEditingTag(null);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="flex flex-row flex-wrap gap-1 items-center">
+        {selectedTags.map((tag) => (
+          <Badge
+            key={tag.id}
+            variant="secondary"
+            className="group flex items-center relative"
+          >
+            <span className="group-hover:opacity-0 opacity-100 transition-opacity">
+              {tag.name}
+            </span>
+            <button
+              type="button"
+              onClick={() => removeTag(tag.id)}
+              className="group-hover:opacity-100 opacity-0 absolute inset-0 flex items-center justify-center transition-opacity"
+              aria-label={`Remove tag ${tag.name}`}
+            >
+              <XIcon className="size-3" />
             </button>
           </Badge>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-52 p-0" align="start">
-          <Command>
-            <CommandInput
-              placeholder="Search or create..."
-              value={search}
-              onValueChange={setSearch}
-            />
-            <CommandList>
-              {unselectedTags.length === 0 && !showCreate && (
-                <CommandEmpty>No tags found.</CommandEmpty>
-              )}
-              <CommandGroup>
-                {unselectedTags.map((tag) => (
-                  <CommandItem
-                    key={tag.id}
-                    value={tag.name}
-                    onSelect={() => addTag(tag.id)}
-                  >
-                    {tag.name}
-                  </CommandItem>
-                ))}
-                {showCreate && (
-                  <CommandItem
-                    value={`__create__${trimmedSearch}`}
-                    onSelect={handleCreate}
-                    disabled={creating}
-                  >
-                    Create &quot;{trimmedSearch}&quot;
-                  </CommandItem>
+        ))}
+
+        <DropdownMenu open={open} onOpenChange={setOpen}>
+          <DropdownMenuTrigger asChild>
+            <Badge asChild variant="secondary">
+              <button type="button" aria-label="Add tag" className="h-5.5">
+                <PlusIcon className="size-3" />
+              </button>
+            </Badge>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-52 p-0" align="start">
+            <Command>
+              <CommandInput
+                placeholder="Search or create..."
+                value={search}
+                onValueChange={setSearch}
+              />
+              <CommandList>
+                {unselectedTags.length === 0 && !showCreate && (
+                  <CommandEmpty>No tags found.</CommandEmpty>
                 )}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+                <CommandGroup>
+                  {unselectedTags.map((tag) => (
+                    <CommandItem
+                      key={tag.id}
+                      value={tag.name}
+                      onSelect={() => addTag(tag.id)}
+                      className="flex items-center justify-between pr-1"
+                    >
+                      <span>{tag.name}</span>
+                      <button
+                        type="button"
+                        onPointerDown={(e) => e.preventDefault()}
+                        onClick={(e) => openEditDialog(tag, e)}
+                        className="ml-auto shrink-0 p-0.5 rounded hover:bg-muted"
+                        aria-label={`Edit tag ${tag.name}`}
+                      >
+                        <PencilIcon className="size-4 text-muted-foreground" />
+                      </button>
+                    </CommandItem>
+                  ))}
+                  {showCreate && (
+                    <CommandItem
+                      value={`__create__${trimmedSearch}`}
+                      onSelect={handleCreate}
+                      disabled={creating}
+                    >
+                      Create &quot;{trimmedSearch}&quot;
+                    </CommandItem>
+                  )}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Tag edit sheet */}
+      <Sheet
+        open={!!editingTag}
+        onOpenChange={(o) => !o && setEditingTag(null)}
+      >
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit Tag</SheetTitle>
+          </SheetHeader>
+          <div className="px-4">
+            <Input
+              ref={editInputRef}
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSaveEdit();
+                }
+              }}
+              placeholder="Tag name"
+            />
+          </div>
+          <SheetFooter>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteTag}
+              disabled={saving}
+              type="button"
+            >
+              Delete
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setEditingTag(null)}
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSaveEdit}
+              disabled={saving || !editName.trim()}
+              type="button"
+            >
+              Save
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

@@ -20,6 +20,22 @@ export async function createTag(name: string) {
   return tag;
 }
 
+export async function updateTag(id: string, name: string) {
+  const [tag] = await db
+    .update(tags)
+    .set({ name: name.trim() })
+    .where(eq(tags.id, id))
+    .returning();
+  revalidatePath("/", "layout");
+  return tag;
+}
+
+export async function deleteTag(id: string) {
+  await db.delete(actionTags).where(eq(actionTags.tagId, id));
+  await db.delete(tags).where(eq(tags.id, id));
+  revalidatePath("/", "layout");
+}
+
 export async function deleteIn(id: string) {
   await db.delete(ins).where(eq(ins.id, id));
   revalidatePath("/", "layout");
