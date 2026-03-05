@@ -1,5 +1,4 @@
 import { and, asc, isNull } from "drizzle-orm";
-import { Suspense } from "react";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, actionTags, projects, tags } from "@/lib/db/schema";
@@ -25,14 +24,12 @@ export default async function Page() {
   const allActionTags = await db.select().from(actionTags);
 
   return (
-    <Suspense>
-      <ActionsPageClient
-        data={data}
-        projectsData={projectsData}
-        popularProjects={popularProjects}
-        allTags={allTags}
-        allActionTags={allActionTags}
-      />
-    </Suspense>
+    <ActionsPageClient
+      data={data}
+      projectsData={projectsData}
+      popularProjects={popularProjects}
+      allTags={allTags}
+      allActionTags={allActionTags}
+    />
   );
 }

@@ -3,11 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { VariantProps } from "class-variance-authority";
 import { Circle, CircleCheck, Ellipsis, XIcon } from "lucide-react";
-import {
-  type ReadonlyURLSearchParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -430,45 +425,22 @@ export function CompletedButton({ value }: { value: Action }) {
 
 export function TagFilterBar({
   allTags,
-  searchParams,
+  activeFilters,
+  onToggle,
+  onClear,
 }: {
   allTags: Array<{ id: string; name: string }>;
-  searchParams: ReadonlyURLSearchParams;
+  activeFilters: string[];
+  onToggle: (tagId: string) => void;
+  onClear: () => void;
 }) {
-  const router = useRouter();
-
-  const activeFilters = searchParams.getAll("filters");
-
-  const toggleFilter = (tagId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const current = params.getAll("filters");
-
-    if (current.includes(tagId)) {
-      // Remove this tag
-      params.delete("filters");
-      for (const f of current.filter((id) => id !== tagId)) {
-        params.append("filters", f);
-      }
-    } else {
-      params.append("filters", tagId);
-    }
-
-    router.push(`?${params.toString()}`);
-  };
-
-  const clearFilters = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("filters");
-    router.push(`?${params.toString()}`);
-  };
-
   if (allTags.length === 0) return null;
 
   return (
     <div className="flex flex-row flex-wrap gap-0.5 justify-end">
       {activeFilters.length > 0 && (
         <Badge variant="secondary" asChild>
-          <button type="button" onClick={clearFilters}>
+          <button type="button" onClick={onClear}>
             <XIcon className="size-3" />
           </button>
         </Badge>
@@ -477,7 +449,7 @@ export function TagFilterBar({
         const active = activeFilters.includes(tag.id);
         return (
           <Badge key={tag.id} variant={active ? "default" : "outline"} asChild>
-            <button type="button" onClick={() => toggleFilter(tag.id)}>
+            <button type="button" onClick={() => onToggle(tag.id)}>
               {tag.name}
             </button>
           </Badge>
@@ -500,8 +472,7 @@ export function ActionsPageClient({
   allTags: Array<typeof tags.$inferSelect>;
   allActionTags: Array<typeof actionTags.$inferSelect>;
 }) {
-  const searchParams = useSearchParams();
-  const filters = searchParams.getAll("filters");
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const actionTagIds: Record<string, string[]> = {};
   for (const at of allActionTags) {
@@ -509,19 +480,23 @@ export function ActionsPageClient({
     actionTagIds[at.actionId].push(at.tagId);
   }
 
+  const toggleFilter = (tagId: string) =>
+    setActiveFilters((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
+    );
+
+  const clearFilters = () => setActiveFilters([]);
+
   const sorted = [
     ...data.filter((a) => a.type === "Now"),
     ...data.filter((a) => a.type === "Nothing"),
     ...data.filter((a) => a.type === "Waiting For"),
   ].filter((item) => {
-    const filterArray = Array.isArray(filters)
-      ? filters
-      : filters
-        ? [filters]
-        : [];
-    if (filterArray.length === 0) return true;
+    if (activeFilters.length === 0) return true;
     const itemTagIds = actionTagIds[item.id] ?? [];
-    return filterArray.every((tagId) => itemTagIds.includes(tagId));
+    return activeFilters.every((tagId) => itemTagIds.includes(tagId));
   });
 
   return (
@@ -532,7 +507,12 @@ export function ActionsPageClient({
         allTags={allTags}
         actionTagIds={actionTagIds}
       />
-      <TagFilterBar allTags={allTags} searchParams={searchParams} />
+      <TagFilterBar
+        allTags={allTags}
+        activeFilters={activeFilters}
+        onToggle={toggleFilter}
+        onClear={clearFilters}
+      />
       <div className="divide-y divide-border flex flex-col">
         {sorted.map((item) => (
           <div
