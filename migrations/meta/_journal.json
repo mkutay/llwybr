@@ -29,6 +29,20 @@
       "when": 1772647333373,
       "tag": "0003_young_mimic",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772727673392,
+      "tag": "0005_jittery_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772727729791,
+      "tag": "0006_gifted_klaw",
+      "breakpoints": true
     }
   ]
 }

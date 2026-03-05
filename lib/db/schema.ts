@@ -2,6 +2,7 @@ import {
   type AnyPgColumn,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uuid,
@@ -47,8 +48,16 @@ export const tags = pgTable("tags", {
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
 });
 
-export const actionTags = pgTable("action_tags", {
-  actionId: uuid().references(() => actions.id),
-  tagId: uuid().references(() => tags.id),
-  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
-});
+export const actionTags = pgTable(
+  "action_tags",
+  {
+    actionId: uuid()
+      .notNull()
+      .references(() => actions.id),
+    tagId: uuid()
+      .notNull()
+      .references(() => tags.id),
+    createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.actionId, table.tagId] })],
+);

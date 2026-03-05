@@ -45,7 +45,6 @@ export default async function Page() {
   const allActionTags = await db.select().from(actionTags);
   const actionTagIds: Record<string, string[]> = {};
   for (const at of allActionTags) {
-    if (!at.actionId || !at.tagId) continue;
     if (!actionTagIds[at.actionId]) actionTagIds[at.actionId] = [];
     actionTagIds[at.actionId].push(at.tagId);
   }
