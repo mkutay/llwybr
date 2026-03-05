@@ -34,12 +34,8 @@
           "name": "action_tags_actionId_actions_id_fk",
           "tableFrom": "action_tags",
           "tableTo": "actions",
-          "columnsFrom": [
-            "actionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actionId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -47,12 +43,8 @@
           "name": "action_tags_tagId_tags_id_fk",
           "tableFrom": "action_tags",
           "tableTo": "tags",
-          "columnsFrom": [
-            "tagId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tagId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -60,10 +52,7 @@
       "compositePrimaryKeys": {
         "action_tags_actionId_tagId_pk": {
           "name": "action_tags_actionId_tagId_pk",
-          "columns": [
-            "actionId",
-            "tagId"
-          ]
+          "columns": ["actionId", "tagId"]
         }
       },
       "uniqueConstraints": {},
@@ -149,12 +138,8 @@
           "name": "actions_projectId_projects_id_fk",
           "tableFrom": "actions",
           "tableTo": "projects",
-          "columnsFrom": [
-            "projectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["projectId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -269,12 +254,8 @@
           "name": "projects_parentProjectId_projects_id_fk",
           "tableFrom": "projects",
           "tableTo": "projects",
-          "columnsFrom": [
-            "parentProjectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parentProjectId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -323,11 +304,7 @@
     "public.action_type": {
       "name": "action_type",
       "schema": "public",
-      "values": [
-        "Waiting For",
-        "Now",
-        "Nothing"
-      ]
+      "values": ["Waiting For", "Now", "Nothing"]
     }
   },
   "schemas": {},
