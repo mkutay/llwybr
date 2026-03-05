@@ -158,7 +158,7 @@ export function MoveDialog({
           onValueChange={handleTabChange}
           className="hidden"
         >
-          <DialogContent className="*:data-[slot=tabs-content]:space-y-4">
+          <DialogContent className="*:data-[slot=tabs-content]:space-y-2">
             <TabsContent value="action">
               <DialogHeader>
                 <DialogTitle>Move to Actions</DialogTitle>

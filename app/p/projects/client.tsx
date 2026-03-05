@@ -180,7 +180,7 @@ export function EditDialog({
           onValueChange={handleTabChange}
           className="hidden"
         >
-          <DialogContent className="*:data-[slot=tabs-content]:space-y-4">
+          <DialogContent className="*:data-[slot=tabs-content]:space-y-2">
             <TabsContent value="project">
               <DialogHeader>
                 <DialogTitle>Edit Project</DialogTitle>

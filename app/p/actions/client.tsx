@@ -170,7 +170,7 @@ export function EditDialog({
           onValueChange={handleTabChange}
           className="hidden"
         >
-          <DialogContent className="*:data-[slot=tabs-content]:space-y-4">
+          <DialogContent className="*:data-[slot=tabs-content]:space-y-2">
             <TabsContent value="action">
               <DialogHeader>
                 <DialogTitle>Edit Action</DialogTitle>
@@ -499,7 +499,9 @@ export function ActionsPageClient({
     return activeFilters.every((tagId) => itemTagIds.includes(tagId));
   });
 
-  const usedTagIds = new Set(sorted.flatMap((item) => actionTagIds[item.id] ?? []));
+  const usedTagIds = new Set(
+    sorted.flatMap((item) => actionTagIds[item.id] ?? []),
+  );
   const tagsInView = allTags.filter((t) => usedTagIds.has(t.id));
 
   return (

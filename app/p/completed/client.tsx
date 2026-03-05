@@ -249,10 +249,10 @@ export function CompletedView({
                           `[${item.value.type.toUpperCase()}] `}
                         {item.kind === "action" &&
                           item.value.projectId &&
-                          `(${allProjects.find((p) => (item.value as typeof actions.$inferSelect).projectId === p.id)?.title}) `}
+                          `(${allProjects.find((p) => item.value.projectId === p.id)?.title}) `}
                         {item.kind === "project" &&
                           item.value.parentProjectId &&
-                          `(${allProjects.find((p) => (item.value as typeof projects.$inferSelect).parentProjectId === p.id)?.title}) `}
+                          `(${allProjects.find((p) => item.value.parentProjectId === p.id)?.title}) `}
                         {item.value.title}
                         {item.kind === "project" && (
                           <span className="text-muted-foreground text-sm font-mono">
