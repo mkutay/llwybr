@@ -3,6 +3,7 @@ import { Deadline } from "@/components/deadline";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, actionTags, projects, tags } from "@/lib/db/schema";
+import { getTagsString } from "@/lib/tags";
 import {
   CompletedButton,
   EditButton,
@@ -60,6 +61,7 @@ export default async function Page() {
               <div className="flex flex-row gap-2 items-center">
                 <CompletedButton value={item} />
                 {item.type !== "Nothing" && `[${item.type.toUpperCase()}] `}
+                {`${getTagsString(actionTagIds[item.id] ?? [], allTags)} `}
                 {item.projectId
                   ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
                   : ""}

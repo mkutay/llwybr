@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, actionTags, projects, tags } from "@/lib/db/schema";
+import { getTagsString } from "@/lib/tags";
 import {
   CompletedButton as ActionsCompletedButton,
   EditButton as ActionsEditButton,
@@ -142,6 +143,10 @@ export default async function Page() {
                             <ActionsCompletedButton value={action} />
                             {action.type !== "Nothing" &&
                               `[${action.type.toUpperCase()}] `}
+                            {`${getTagsString(
+                              actionTagIds[item.id] ?? [],
+                              allTags,
+                            )} `}
                             {action.title}
                           </div>
                           {action.notes && (
