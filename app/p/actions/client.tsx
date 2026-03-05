@@ -2,7 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { VariantProps } from "class-variance-authority";
-import { Circle, CircleCheck, Ellipsis } from "lucide-react";
+import { Circle, CircleCheck, Ellipsis, XIcon } from "lucide-react";
+import {
+  type ReadonlyURLSearchParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,8 +15,10 @@ import type z from "zod";
 import { ChooseProject } from "@/components/choose-project";
 import { ChooseTags } from "@/components/choose-tags";
 import { DateTimePicker } from "@/components/date-time-picker";
+import { Deadline } from "@/components/deadline";
 import { createDialogContext } from "@/components/dialog-context";
 import { TypeSelect } from "@/components/type-select";
+import { Badge } from "@/components/ui/badge";
 import { Button, type buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,8 +39,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteAction, editAction, moveActionToProject } from "@/lib/actions";
-import type { actions } from "@/lib/db/schema";
+import type { actions, actionTags, projects, tags } from "@/lib/db/schema";
 import { editActionSchema, moveActionToProjectSchema } from "@/lib/schemas";
+import { getTagsString } from "@/lib/tags";
 
 type Action = typeof actions.$inferSelect;
 
@@ -417,5 +425,147 @@ export function CompletedButton({ value }: { value: Action }) {
       <Circle className="group-hover:hidden flex" />
       <CircleCheck className="hidden group-hover:flex" />
     </Button>
+  );
+}
+
+export function TagFilterBar({
+  allTags,
+  searchParams,
+}: {
+  allTags: Array<{ id: string; name: string }>;
+  searchParams: ReadonlyURLSearchParams;
+}) {
+  const router = useRouter();
+
+  const activeFilters = searchParams.getAll("filters");
+
+  const toggleFilter = (tagId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const current = params.getAll("filters");
+
+    if (current.includes(tagId)) {
+      // Remove this tag
+      params.delete("filters");
+      for (const f of current.filter((id) => id !== tagId)) {
+        params.append("filters", f);
+      }
+    } else {
+      params.append("filters", tagId);
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("filters");
+    router.push(`?${params.toString()}`);
+  };
+
+  if (allTags.length === 0) return null;
+
+  return (
+    <div className="flex flex-row flex-wrap gap-0.5 justify-end">
+      {activeFilters.length > 0 && (
+        <Badge variant="secondary" asChild>
+          <button type="button" onClick={clearFilters}>
+            <XIcon className="size-3" />
+          </button>
+        </Badge>
+      )}
+      {allTags.map((tag) => {
+        const active = activeFilters.includes(tag.id);
+        return (
+          <Badge key={tag.id} variant={active ? "default" : "outline"} asChild>
+            <button type="button" onClick={() => toggleFilter(tag.id)}>
+              {tag.name}
+            </button>
+          </Badge>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ActionsPageClient({
+  data,
+  projectsData,
+  popularProjects,
+  allTags,
+  allActionTags,
+}: {
+  data: Action[];
+  projectsData: Array<typeof projects.$inferSelect>;
+  popularProjects: Array<{ id: string; title: string }>;
+  allTags: Array<typeof tags.$inferSelect>;
+  allActionTags: Array<typeof actionTags.$inferSelect>;
+}) {
+  const searchParams = useSearchParams();
+  const filters = searchParams.getAll("filters");
+
+  const actionTagIds: Record<string, string[]> = {};
+  for (const at of allActionTags) {
+    if (!actionTagIds[at.actionId]) actionTagIds[at.actionId] = [];
+    actionTagIds[at.actionId].push(at.tagId);
+  }
+
+  const sorted = [
+    ...data.filter((a) => a.type === "Now"),
+    ...data.filter((a) => a.type === "Nothing"),
+    ...data.filter((a) => a.type === "Waiting For"),
+  ].filter((item) => {
+    const filterArray = Array.isArray(filters)
+      ? filters
+      : filters
+        ? [filters]
+        : [];
+    if (filterArray.length === 0) return true;
+    const itemTagIds = actionTagIds[item.id] ?? [];
+    return filterArray.every((tagId) => itemTagIds.includes(tagId));
+  });
+
+  return (
+    <EditDialogProvider>
+      <EditDialog
+        projects={projectsData}
+        popularProjects={popularProjects}
+        allTags={allTags}
+        actionTagIds={actionTagIds}
+      />
+      <TagFilterBar allTags={allTags} searchParams={searchParams} />
+      <div className="divide-y divide-border flex flex-col">
+        {sorted.map((item) => (
+          <div
+            key={item.id}
+            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
+          >
+            <div className="flex flex-col">
+              <div className="flex flex-row gap-2 items-center">
+                <CompletedButton value={item} />
+                {item.type !== "Nothing" && `[${item.type.toUpperCase()}] `}
+                {`${getTagsString(actionTagIds[item.id] ?? [], allTags)} `}
+                {item.projectId
+                  ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
+                  : ""}
+                {item.title}
+              </div>
+              {item.notes && (
+                <div className="ml-10 break-all text-pretty text-justify text-muted-foreground">
+                  <pre className="font-mono text-sm whitespace-pre-wrap">
+                    {item.notes}
+                  </pre>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-row gap-4 items-center ml-auto">
+              {item.deadline && (
+                <Deadline deadline={item.deadline} className="text-sm" />
+              )}
+              <EditButton value={item} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </EditDialogProvider>
   );
 }

@@ -1,15 +1,9 @@
 import { and, asc, isNull } from "drizzle-orm";
-import { Deadline } from "@/components/deadline";
+import { Suspense } from "react";
 import { getPopularProjects } from "@/lib/algorithms";
 import { db } from "@/lib/db/drizzle";
 import { actions, actionTags, projects, tags } from "@/lib/db/schema";
-import { getTagsString } from "@/lib/tags";
-import {
-  CompletedButton,
-  EditButton,
-  EditDialog,
-  EditDialogProvider,
-} from "./client";
+import { ActionsPageClient } from "./client";
 
 export default async function Page() {
   const data = await db
@@ -29,61 +23,16 @@ export default async function Page() {
   const allTags = await db.select().from(tags).orderBy(asc(tags.name));
 
   const allActionTags = await db.select().from(actionTags);
-  const actionTagIds: Record<string, string[]> = {};
-  for (const at of allActionTags) {
-    if (!actionTagIds[at.actionId]) actionTagIds[at.actionId] = [];
-    actionTagIds[at.actionId].push(at.tagId);
-  }
-
-  const sortedData = data.sort((a, b) => {
-    if (a.type === "Now") return -1;
-    if (b.type === "Now") return 1;
-    if (a.type === "Waiting For") return 1;
-    if (b.type === "Waiting For") return -1;
-    return 0;
-  });
 
   return (
-    <EditDialogProvider>
-      <EditDialog
-        projects={projectsData}
+    <Suspense>
+      <ActionsPageClient
+        data={data}
+        projectsData={projectsData}
         popularProjects={popularProjects}
         allTags={allTags}
-        actionTagIds={actionTagIds}
+        allActionTags={allActionTags}
       />
-      <div className="divide-y divide-border flex flex-col">
-        {sortedData.map((item) => (
-          <div
-            key={item.id}
-            className="py-2 flex flex-row flex-wrap gap-1 justify-between items-end"
-          >
-            <div className="flex flex-col">
-              <div className="flex flex-row gap-2 items-center">
-                <CompletedButton value={item} />
-                {item.type !== "Nothing" && `[${item.type.toUpperCase()}] `}
-                {`${getTagsString(actionTagIds[item.id] ?? [], allTags)} `}
-                {item.projectId
-                  ? `(${projectsData.find((p) => item.projectId === p.id)?.title}) `
-                  : ""}
-                {item.title}
-              </div>
-              {item.notes && (
-                <div className="ml-10 break-all text-pretty text-justify text-muted-foreground">
-                  <pre className="font-mono text-sm whitespace-pre-wrap">
-                    {item.notes}
-                  </pre>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-row gap-4 items-center ml-auto">
-              {item.deadline && (
-                <Deadline deadline={item.deadline} className="text-sm" />
-              )}
-              <EditButton value={item} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </EditDialogProvider>
+    </Suspense>
   );
 }
