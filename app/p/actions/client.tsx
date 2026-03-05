@@ -499,6 +499,9 @@ export function ActionsPageClient({
     return activeFilters.every((tagId) => itemTagIds.includes(tagId));
   });
 
+  const usedTagIds = new Set(sorted.flatMap((item) => actionTagIds[item.id] ?? []));
+  const tagsInView = allTags.filter((t) => usedTagIds.has(t.id));
+
   return (
     <EditDialogProvider>
       <EditDialog
@@ -508,7 +511,7 @@ export function ActionsPageClient({
         actionTagIds={actionTagIds}
       />
       <TagFilterBar
-        allTags={allTags}
+        allTags={tagsInView}
         activeFilters={activeFilters}
         onToggle={toggleFilter}
         onClear={clearFilters}
