@@ -391,7 +391,6 @@ export function EditDialog({
                 type="button"
                 variant="outline"
                 onClick={handleArchive}
-                disabled={project.hasChildren}
               >
                 Archive
               </Button>
