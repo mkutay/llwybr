@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { editAction, upsertProject } from "@/lib/actions";
 import type { actions, projects } from "@/lib/db/schema";
+import { DEFAULT_TIMEOUT_MS, withTimeout } from "@/lib/utils";
 
 type Action = typeof actions.$inferSelect;
 type Project = typeof projects.$inferSelect;
@@ -44,16 +45,30 @@ function useUncomplete() {
 
 function UncompleteDialogProvider({ children }: { children: React.ReactNode }) {
   const [pending, setPending] = useState<PendingItem | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUncomplete = async () => {
     if (!pending) return;
-    if (pending.kind === "action") {
-      await editAction({ ...pending.value, completed: null, tagIds: [] });
-    } else {
-      await upsertProject({ ...pending.value, completed: null });
+    setIsSubmitting(true);
+    try {
+      if (pending.kind === "action") {
+        await withTimeout(
+          editAction({ ...pending.value, completed: null, tagIds: [] }),
+          DEFAULT_TIMEOUT_MS,
+        );
+      } else {
+        await withTimeout(
+          upsertProject({ ...pending.value, completed: null }),
+          DEFAULT_TIMEOUT_MS,
+        );
+      }
+      toast.success("Marked as incomplete.");
+      setPending(null);
+    } catch {
+      toast.error("Failed to mark as incomplete — please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success("Marked as incomplete.");
-    setPending(null);
   };
 
   return (
@@ -80,8 +95,13 @@ function UncompleteDialogProvider({ children }: { children: React.ReactNode }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUncomplete}>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleUncomplete}
+              disabled={isSubmitting}
+            >
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -32,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteIn, moveInAction, moveInProjectAction } from "@/lib/actions";
 import { moveInProjectSchema, moveInSchema } from "@/lib/schemas";
+import { DEFAULT_TIMEOUT_MS, withTimeout } from "@/lib/utils";
 
 interface InDialogValue {
   id: string;
@@ -54,6 +55,7 @@ export function MoveDialog({
 }) {
   const { open, value, closeDialog, setOpen } = useMoveDialog();
   const [openedForm, setOpenedForm] = useState("action");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof moveInSchema>>({
     resolver: zodResolver(moveInSchema),
@@ -88,31 +90,52 @@ export function MoveDialog({
   }
 
   const onSubmit = async (data: z.infer<typeof moveInSchema>) => {
-    closeDialog();
-    await moveInAction(data);
-    toast.success("Moved to actions.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(moveInAction(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Moved to actions.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to move — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const onSubmitProject = async (data: z.infer<typeof moveInProjectSchema>) => {
-    closeDialog();
-    await moveInProjectAction(data);
-    toast.success("Moved to projects.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(moveInProjectAction(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Moved to projects.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to move — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!value) return;
-    closeDialog();
-    await deleteIn(value.id);
-    toast.success("Deleted.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(deleteIn(value.id), DEFAULT_TIMEOUT_MS);
+      toast.success("Deleted.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to delete — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleTabChange = (value: string) => {
@@ -343,18 +366,33 @@ export function MoveDialog({
             </TabsContent>
             <DialogFooter>
               <TabsList className="mr-auto">
-                <TabsTrigger value="action">Action</TabsTrigger>
-                <TabsTrigger value="project">Project</TabsTrigger>
+                <TabsTrigger value="action" disabled={isSubmitting}>
+                  Action
+                </TabsTrigger>
+                <TabsTrigger value="project" disabled={isSubmitting}>
+                  Project
+                </TabsTrigger>
               </TabsList>
-              <Button variant="destructive" onClick={handleDelete} size="sm">
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                size="sm"
+                disabled={isSubmitting}
+              >
                 Delete
               </Button>
-              <Button variant="secondary" onClick={closeDialog} size="sm">
+              <Button
+                variant="secondary"
+                onClick={closeDialog}
+                size="sm"
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 size="sm"
                 type="submit"
+                disabled={isSubmitting}
                 form={
                   openedForm === "action"
                     ? "move-in-form"
