@@ -37,6 +37,7 @@ import { deleteAction, editAction, moveActionToProject } from "@/lib/actions";
 import type { actions, actionTags, projects, tags } from "@/lib/db/schema";
 import { editActionSchema, moveActionToProjectSchema } from "@/lib/schemas";
 import { getTagsString } from "@/lib/tags";
+import { DEFAULT_TIMEOUT_MS, withTimeout } from "@/lib/utils";
 
 type Action = typeof actions.$inferSelect;
 
@@ -57,15 +58,25 @@ export function EditDialog({
   actionTagIds: Record<string, string[]>;
 }) {
   const { open, value: action, closeDialog, setOpen } = useEditDialog();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof editActionSchema>>({
     resolver: zodResolver(editActionSchema),
   });
 
   const onSubmit = async (data: z.infer<typeof editActionSchema>) => {
-    closeDialog();
-    await editAction(data);
-    toast.success("Edited.");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(editAction(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Edited.");
+      closeDialog();
+      form.reset();
+      projectForm.reset();
+    } catch {
+      toast.error("Failed to save — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const [openedForm, setOpenedForm] = useState("action");
@@ -103,12 +114,19 @@ export function EditDialog({
   const onSubmitProject = async (
     data: z.infer<typeof moveActionToProjectSchema>,
   ) => {
-    closeDialog();
-    await moveActionToProject(data);
-    toast.success("Moved to projects.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(moveActionToProject(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Moved to projects.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to move — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleTabChange = (value: string) => {
@@ -128,26 +146,43 @@ export function EditDialog({
 
   const handleDelete = async () => {
     if (!action) return;
-    closeDialog();
-    await deleteAction(action.id);
-    toast.success("Deleted.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(deleteAction(action.id), DEFAULT_TIMEOUT_MS);
+      toast.success("Deleted.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to delete — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleArchive = async () => {
     if (!action) return;
-    closeDialog();
-    await editAction({
-      ...action,
-      archived: new Date(),
-      tagIds: actionTagIds[action.id] ?? [],
-    });
-    toast.success("Archived.");
-    form.reset();
-    projectForm.reset();
-    setOpenedForm("action");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(
+        editAction({
+          ...action,
+          archived: new Date(),
+          tagIds: actionTagIds[action.id] ?? [],
+        }),
+        DEFAULT_TIMEOUT_MS,
+      );
+      toast.success("Archived.");
+      form.reset();
+      projectForm.reset();
+      setOpenedForm("action");
+      closeDialog();
+    } catch {
+      toast.error("Failed to archive — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -361,10 +396,20 @@ export function EditDialog({
                 <TabsTrigger value="action">Action</TabsTrigger>
                 <TabsTrigger value="project">Project</TabsTrigger>
               </TabsList>
-              <Button variant="destructive" onClick={handleDelete} size="sm">
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                size="sm"
+                disabled={isSubmitting}
+              >
                 Delete
               </Button>
-              <Button variant="outline" onClick={handleArchive} size="sm">
+              <Button
+                variant="outline"
+                onClick={handleArchive}
+                size="sm"
+                disabled={isSubmitting}
+              >
                 Archive
               </Button>
               <Button variant="secondary" onClick={closeDialog} size="sm">
@@ -378,6 +423,7 @@ export function EditDialog({
                     ? "edit-action-form"
                     : "move-action-project-form"
                 }
+                disabled={isSubmitting}
               >
                 {openedForm === "action" ? "Submit" : "Move"}
               </Button>
@@ -407,7 +453,14 @@ export function EditButton({
 
 export function CompletedButton({ value }: { value: Action }) {
   const handleComplete = async (val: Action) => {
-    await editAction({ ...val, completed: new Date(), tagIds: [] });
+    try {
+      await withTimeout(
+        editAction({ ...val, completed: new Date(), tagIds: [] }),
+        DEFAULT_TIMEOUT_MS,
+      );
+    } catch {
+      toast.error("Failed to complete — please try again.");
+    }
   };
 
   return (

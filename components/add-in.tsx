@@ -3,17 +3,28 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { addIn } from "@/lib/actions";
+import { DEFAULT_TIMEOUT_MS, withTimeout } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 export function AddIn() {
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAdd = async () => {
     if (!text.trim()) return;
-    setText("");
-    await addIn(text);
-    toast.success("Added!");
+    const prev = text;
+    setIsSubmitting(true);
+    try {
+      await withTimeout(addIn(text), DEFAULT_TIMEOUT_MS);
+      setText("");
+      toast.success("Added!");
+    } catch {
+      setText(prev);
+      toast.error("Failed to add — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -27,8 +38,12 @@ export function AddIn() {
             handleAdd();
           }
         }}
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
       />
-      <Button onClick={handleAdd}>Add</Button>
+      <Button onClick={handleAdd} disabled={isSubmitting}>
+        Add
+      </Button>
     </div>
   );
 }

@@ -37,6 +37,7 @@ import {
 } from "@/lib/actions";
 import type { projects } from "@/lib/db/schema";
 import { moveProjectToActionSchema, upsertProjectSchema } from "@/lib/schemas";
+import { DEFAULT_TIMEOUT_MS, withTimeout } from "@/lib/utils";
 
 type Project = typeof projects.$inferSelect & {
   hasChildren?: boolean;
@@ -58,6 +59,7 @@ export function EditDialog({
 }) {
   const { open, value: project, closeDialog, setOpen } = useEditDialog();
   const [openedForm, setOpenedForm] = useState("project");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof upsertProjectSchema>>({
     resolver: zodResolver(upsertProjectSchema),
@@ -99,41 +101,72 @@ export function EditDialog({
   }
 
   const onSubmit = async (data: z.infer<typeof upsertProjectSchema>) => {
-    closeDialog();
-    await upsertProject(data);
-    toast.success("Edited.");
-    setOpenedForm("project");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(upsertProject(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Edited.");
+      setOpenedForm("project");
+      closeDialog();
+    } catch {
+      toast.error("Failed to save — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const onSubmitAction = async (
     data: z.infer<typeof moveProjectToActionSchema>,
   ) => {
-    closeDialog();
-    await moveProjectToAction(data);
-    toast.success("Moved to actions.");
-    form.reset();
-    actionForm.reset();
-    setOpenedForm("project");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(moveProjectToAction(data), DEFAULT_TIMEOUT_MS);
+      toast.success("Moved to actions.");
+      form.reset();
+      actionForm.reset();
+      setOpenedForm("project");
+      closeDialog();
+    } catch {
+      toast.error("Failed to move — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!project) return;
-    closeDialog();
-    await deleteProject(project.id);
-    toast.success("Deleted.");
-    form.reset();
-    actionForm.reset();
-    setOpenedForm("project");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(deleteProject(project.id), DEFAULT_TIMEOUT_MS);
+      toast.success("Deleted.");
+      form.reset();
+      actionForm.reset();
+      setOpenedForm("project");
+      closeDialog();
+    } catch {
+      toast.error("Failed to delete — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleArchive = async () => {
     if (!project) return;
-    closeDialog();
-    await upsertProject({ ...project, archived: new Date() });
-    toast.success("Archived.");
-    form.reset();
-    actionForm.reset();
-    setOpenedForm("project");
+    setIsSubmitting(true);
+    try {
+      await withTimeout(
+        upsertProject({ ...project, archived: new Date() }),
+        DEFAULT_TIMEOUT_MS,
+      );
+      toast.success("Archived.");
+      form.reset();
+      actionForm.reset();
+      setOpenedForm("project");
+      closeDialog();
+    } catch {
+      toast.error("Failed to archive — please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleTabChange = (value: string) => {
@@ -381,7 +414,7 @@ export function EditDialog({
                 size="sm"
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={project.hasChildren}
+                disabled={project.hasChildren || isSubmitting}
                 type="button"
               >
                 Delete
@@ -391,6 +424,7 @@ export function EditDialog({
                 type="button"
                 variant="outline"
                 onClick={handleArchive}
+                disabled={isSubmitting}
               >
                 Archive
               </Button>
@@ -411,6 +445,7 @@ export function EditDialog({
                     : "move-project-action-form"
                 }
                 size="sm"
+                disabled={isSubmitting}
               >
                 {openedForm === "project" ? "Submit" : "Move"}
               </Button>
@@ -451,7 +486,14 @@ export function CompletedButton({
   disabled?: boolean;
 }) {
   const handleComplete = async (val: Project) => {
-    await upsertProject({ ...val, completed: new Date() });
+    try {
+      await withTimeout(
+        upsertProject({ ...val, completed: new Date() }),
+        DEFAULT_TIMEOUT_MS,
+      );
+    } catch {
+      toast.error("Failed to complete — please try again.");
+    }
   };
 
   return (
