@@ -61,27 +61,27 @@ export function Nav() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <Link href="/p/ins" prefetch={false}>
+            <Link href="/p/ins" prefetch>
               Ins
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/p/actions" prefetch={false}>
+            <Link href="/p/actions" prefetch>
               Actions
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/p/projects" prefetch={false}>
+            <Link href="/p/projects" prefetch>
               Projects
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/p/archive" prefetch={false}>
+            <Link href="/p/archive" prefetch>
               Archive
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/p/completed" prefetch={false}>
+            <Link href="/p/completed" prefetch>
               Completed
             </Link>
           </DropdownMenuItem>
