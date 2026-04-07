@@ -2,7 +2,6 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import type z from "zod";
 import { db } from "./db/drizzle";
 import { actions, actionTags, ins, projects, tags } from "./db/schema";
@@ -16,18 +15,12 @@ import type {
 } from "./schemas";
 
 async function revalidate() {
-  const h = await headers();
-  const referer = h.get("referer");
-  if (referer) {
-    try {
-      const url = new URL(referer);
-      revalidatePath(url.pathname);
-    } catch {
-      revalidatePath("/");
-    }
-  } else {
-    revalidatePath("/");
-  }
+  revalidatePath("/p/actions");
+  revalidatePath("/p/projects");
+  revalidatePath("/p/ins");
+  revalidatePath("/p/archive");
+  revalidatePath("/p/completed");
+  revalidatePath("/");
 }
 
 export async function createTag(name: string) {
