@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import type z from "zod";
 import { db } from "./db/drizzle";
 import { actions, actionTags, ins, projects, tags } from "./db/schema";
@@ -14,9 +15,24 @@ import type {
   upsertProjectSchema,
 } from "./schemas";
 
+async function revalidate() {
+  const h = await headers();
+  const referer = h.get("referer");
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      revalidatePath(url.pathname);
+    } catch {
+      revalidatePath("/");
+    }
+  } else {
+    revalidatePath("/");
+  }
+}
+
 export async function createTag(name: string) {
   const [tag] = await db.insert(tags).values({ name: name.trim() }).returning();
-  revalidatePath("/", "layout");
+  await revalidate();
   return tag;
 }
 
@@ -26,24 +42,24 @@ export async function updateTag(id: string, name: string) {
     .set({ name: name.trim() })
     .where(eq(tags.id, id))
     .returning();
-  revalidatePath("/", "layout");
+  await revalidate();
   return tag;
 }
 
 export async function deleteTag(id: string) {
   await db.delete(actionTags).where(eq(actionTags.tagId, id));
   await db.delete(tags).where(eq(tags.id, id));
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function deleteIn(id: string) {
   await db.delete(ins).where(eq(ins.id, id));
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function addIn(text: string) {
   await db.insert(ins).values({ text });
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function moveInAction(data: z.infer<typeof moveInSchema>) {
@@ -66,7 +82,7 @@ export async function moveInAction(data: z.infer<typeof moveInSchema>) {
       .values(data.tagIds.map((tagId) => ({ actionId: id, tagId })));
   }
 
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function moveInProjectAction(
@@ -83,7 +99,7 @@ export async function moveInProjectAction(
 
   await db.update(ins).set({ moved: id }).where(eq(ins.id, data.inId));
 
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function moveActionToProject(
@@ -101,7 +117,7 @@ export async function moveActionToProject(
   await db.update(ins).set({ moved: id }).where(eq(ins.moved, data.actionId));
   await db.delete(actions).where(eq(actions.id, data.actionId));
 
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function moveProjectToAction(
@@ -130,13 +146,13 @@ export async function moveProjectToAction(
   }
 
   await deleteProject(data.sourceProjectId);
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function deleteAction(id: string) {
   await db.delete(ins).where(eq(ins.moved, id));
   await db.delete(actions).where(eq(actions.id, id));
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function editAction(data: z.infer<typeof editActionSchema>) {
@@ -161,12 +177,12 @@ export async function editAction(data: z.infer<typeof editActionSchema>) {
       .values(data.tagIds.map((tagId) => ({ actionId: data.id, tagId })));
   }
 
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function deleteProject(id: string) {
   await db.delete(projects).where(eq(projects.id, id));
-  revalidatePath("/", "layout");
+  await revalidate();
 }
 
 export async function upsertProject(data: z.infer<typeof upsertProjectSchema>) {
@@ -189,5 +205,5 @@ export async function upsertProject(data: z.infer<typeof upsertProjectSchema>) {
       .where(eq(projects.id, data.id));
   }
 
-  revalidatePath("/", "layout");
+  await revalidate();
 }
