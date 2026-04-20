@@ -28,8 +28,8 @@ function dateToIso(d: Date): string {
 }
 
 function isoToDate(iso: string): Date {
-  const date = new Date(`${iso}T00:00:00Z`);
-  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 export function DateTimePicker({
@@ -79,7 +79,9 @@ export function DateTimePicker({
       d.setHours(hours, minutes, 0, 0);
       onChange(d);
     } else if (datePart) {
-      onChange(isoToDate(datePart));
+      const d = isoToDate(datePart);
+      d.setHours(23, 59, 0, 0);
+      onChange(d);
     } else if (timePart) {
       const today = new Date();
       const [hours, minutes] = timePart.split(":").map(Number);
@@ -219,23 +221,6 @@ export function DateTimePicker({
           >
             This Weekend
           </Button>
-          {/* <Button
-            size="xs"
-            variant="outline"
-            type="button"
-            className="flex-1"
-            onClick={() => {
-              const inTwoWeeks = new Date();
-              inTwoWeeks.setDate(inTwoWeeks.getDate() + 14);
-              const dateString = inTwoWeeks.toDateString();
-              inTwoWeeks.setHours(23);
-              inTwoWeeks.setMinutes(59);
-              const timeString = convertTime(inTwoWeeks);
-              updateDateTime(dateString, timeString);
-            }}
-          >
-            In Two Weeks
-          </Button> */}
         </div>
       </div>
       {invalid && error && <FieldError errors={[error]} />}
