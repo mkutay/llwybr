@@ -12,7 +12,7 @@ export function AddIn() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAdd = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() || isSubmitting) return;
     const prev = text;
     setIsSubmitting(true);
     try {
@@ -38,8 +38,6 @@ export function AddIn() {
             handleAdd();
           }
         }}
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
       />
       <Button onClick={handleAdd} disabled={isSubmitting}>
         Add
