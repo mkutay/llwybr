@@ -53,7 +53,7 @@ export const actionTags = pgTable(
   {
     actionId: uuid()
       .notNull()
-      .references(() => actions.id),
+      .references(() => actions.id, { onDelete: "cascade" }),
     tagId: uuid()
       .notNull()
       .references(() => tags.id),

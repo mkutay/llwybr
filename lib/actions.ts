@@ -108,6 +108,7 @@ export async function moveActionToProject(
     .returning({ id: projects.id });
 
   await db.update(ins).set({ moved: id }).where(eq(ins.moved, data.actionId));
+  await db.delete(actionTags).where(eq(actionTags.actionId, data.actionId));
   await db.delete(actions).where(eq(actions.id, data.actionId));
 
   await revalidate();
@@ -144,6 +145,7 @@ export async function moveProjectToAction(
 
 export async function deleteAction(id: string) {
   await db.delete(ins).where(eq(ins.moved, id));
+  await db.delete(actionTags).where(eq(actionTags.actionId, id));
   await db.delete(actions).where(eq(actions.id, id));
   await revalidate();
 }
