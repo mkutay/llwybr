@@ -74,3 +74,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `bun db:migrate`: Run migrations
 - `bun db:push`: Push schema changes directly to the database
 - `bun db:studio`: Open Drizzle Studio to manage data
+
+## Exporting Data
+
+You can export your data to Markdown files using the following script:
+
+```bash
+bun run scripts/export-data
+```
