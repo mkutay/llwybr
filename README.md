@@ -2,6 +2,8 @@
 
 > "Path" in Welsh.
 
+NOTE: This project is archived, now that I have switched to using Obsidian for same functionality (see [mkutay/gwella](https://github.com/mkutay/gwella)). However, the code is still available for reference.
+
 `llwybr` is a personal task and project management application built with Next.js. It helps you track your actions and projects, providing a clear view of what needs to be done and what you've accomplished.
 
 ## Tech Stack
